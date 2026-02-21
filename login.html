@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="login">
+  <main class="center-login">
+    <div class="login-card" role="main" aria-labelledby="login-title">
+      <h1 id="login-title">Ride &amp; Roam</h1>
+      <p class="subtitle">A calm pause before your next journey</p>
+      <h2 class="login-heading">Login</h2>
+
+      <form id="login-form" class="login-form">
+        <label for="email" class="vis">Email</label>
+        <input id="email" type="email" placeholder="Email" required />
+
+        <label for="password" class="vis">Password</label>
+        <input id="password" type="password" placeholder="Password" required />
+
+        <div class="form-actions">
+          <button class="btn login-cta" type="submit">Continue</button>
+        </div>
+      </form>
+
+      <div id="status" class="muted small status" aria-live="polite"></div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { auth } from './firebase-init.js';
+    import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
+
+    const form = document.getElementById('login-form');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      status.textContent = 'Signing in...';
+      // Let Firebase handle authentication
+      try{
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        // Check if user exists in Firestore
+        let userProfile = {};
+        let deleted = false;
+        try {
+          const userDoc = await getDoc(doc('users', cred.user.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            userProfile = {
+              name: data.name || '',
+              username: data.username || '',
+              phone: data.phone || '',
+              email: data.email || ''
+            };
+          } else {
+            deleted = true;
+          }
+        } catch (e) {
+          deleted = true;
+        }
+        if (deleted) {
+          await signOut(auth);
+          status.textContent = 'Account deleted. Please sign up again.';
+          return;
+        }
+        localStorage.setItem('profile', JSON.stringify(userProfile));
+        localStorage.setItem('currentUser', JSON.stringify(userProfile));
+        status.textContent = 'Signed in. Redirecting...';
+        setTimeout(()=> location.href = 'dashboard.html', 800);
+      }catch(err){ console.error(err); status.textContent = 'Login failed: '+(err.message||err); }
+    });
+
+    // If already signed in, go to dashboard
+    onAuthStateChanged(auth, async (u)=>{
+      if(u) location.href='dashboard.html';
+    });
+  </script>
+</body>
+</html>

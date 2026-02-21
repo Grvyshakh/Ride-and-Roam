@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Ride & Roam</title>
+  <style>
+    body {
+      background: #162447;
+      color: #fff;
+      font-family: 'Poppins', Arial, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .settings-container {
+      margin-top: 48px;
+      width: 100%;
+      max-width: 420px;
+      background: rgba(22,36,71,0.98);
+      border-radius: 18px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+      padding: 32px 28px 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 12px;
+      font-size: 2.1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .settings-group {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .settings-label {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .settings-btn {
+      width: 100%;
+      padding: 13px 0;
+      border: none;
+      border-radius: 8px;
+      background: #00b8d4;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 6px;
+      transition: background 0.18s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .settings-btn:hover { background: #0097a7; }
+    .settings-btn.danger { background: #ff3d3d; }
+    .settings-btn.danger:hover { background: #b71c1c; }
+    .back-btn {
+      margin-top: 18px;
+      background: #222b4a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 0;
+      width: 100%;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .back-btn:hover { background: #1a2036; }
+  </style>
+</head>
+<body>
+  <div class="settings-container">
+    <h1>Settings</h1>
+    <div class="settings-group">
+      <div>
+        <div class="settings-label">Edit Profile</div>
+        <button class="settings-btn" id="edit-profile-btn">Edit Profile</button>
+      </div>
+      <div>
+        <div class="settings-label">Change Password</div>
+        <button class="settings-btn" id="change-password-btn">Change Password</button>
+      </div>
+      <div>
+        <div class="settings-label">Delete Account</div>
+        <button class="settings-btn danger" id="delete-account-btn">Delete Account</button>
+      </div>
+    </div>
+    <button class="back-btn" id="back-btn">← Back to Dashboard</button>
+  </div>
+  <script>
+    document.getElementById('edit-profile-btn').onclick = function() {
+      window.location.href = 'edit-profile.html';
+    };
+    document.getElementById('change-password-btn').onclick = function() {
+      window.location.href = 'change-password.html';
+    };
+    document.getElementById('delete-account-btn').onclick = function() {
+      if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        // Place Firebase or backend deletion logic here if needed
+        window.location.href = 'index.html';
+      }
+    };
+    document.getElementById('back-btn').onclick = function() {
+      window.location.href = 'dashboard.html';
+    };
+  </script>
+</body>
+</html>

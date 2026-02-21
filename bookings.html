@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bookings - Ride & Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body.dashboard-page.premium-bg {
+      background: linear-gradient(135deg, #0f0930 0%, #2600d1 40%, #24054f 80%, #150139 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #f8fafd;
+      font-family: 'Poppins', 'Inter', Arial, sans-serif;
+    }
+    .dashboard-bg-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: linear-gradient(120deg, rgba(16,26,51,0.92) 0%, rgba(14,60,67,0.88) 60%, rgba(30,96,115,0.82) 100%);
+      background-image:
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 60px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.018) 0 1px, transparent 1px 60px);
+      mix-blend-mode: lighten;
+      opacity: 0.85;
+    }
+    .premium-bookings-cards-grid .card, .glass-card, .premium-card {
+      background: rgba(24, 34, 54, 0.38);
+      box-shadow: 0 8px 32px 0 rgba(16, 26, 51, 0.22), 0 1.5px 8px 0 rgba(0,184,212,0.08);
+      backdrop-filter: blur(18px) saturate(120%);
+      -webkit-backdrop-filter: blur(18px) saturate(120%);
+      border-radius: 22px;
+      border: 1.5px solid rgba(8, 205, 235, 0.886);
+      transition: box-shadow 0.22s, transform 0.18s, background 0.18s;
+      color: #f8fafd;
+      position: relative;
+      overflow: hidden;
+    }
+    .premium-bookings-cards-grid .card:hover, .glass-card:hover, .premium-card:hover {
+      box-shadow: 0 16px 48px 0 #00b8d455, 0 2px 12px 0 #00b8d422;
+      transform: translateY(-4px) scale(1.02);
+      background: rgba(20, 89, 228, 0.48);
+    }
+    .booking-card-icon {
+      font-size: 2.5em;
+      margin-bottom: 0.5em;
+      margin-top: 0.2em;
+      color: #00b8d4;
+      filter: drop-shadow(0 2px 8px #07010855);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.18s;
+    }
+    .booking-option-btn:focus {
+      outline: 2px solid #00b8d4;
+      box-shadow: 0 0 0 3px #00b8d444;
+    }
+    .booking-option-btn:active {
+      transform: scale(0.98);
+    }
+    .booking-cta {
+      margin-top: 0.7em;
+      color: #00b8d4;
+      font-weight: 700;
+      font-size: 1.08em;
+      letter-spacing: 0.2px;
+      text-decoration: underline;
+      transition: color 0.18s;
+    }
+    .hotel-primary-card:focus .booking-cta,
+    .hotel-primary-card:hover .booking-cta {
+      color: #fff;
+    }
+    .booking-locked {
+      display: flex;
+      align-items: center;
+      gap: 0.3em;
+      color: #b0b8c9;
+      font-size: 1em;
+      margin-top: 0.5em;
+      font-weight: 600;
+    }
+    .lock-icon {
+      font-size: 1.1em;
+    }
+    .btn.action {
+      background: linear-gradient(90deg, #00b8d4 0%, #162447 100%);
+      color: #fff;
+      font-weight: 700;
+      border-radius: 14px;
+      font-size: 1.08em;
+      box-shadow: 0 2px 8px #00b8d455;
+      margin-bottom: 0.5em;
+      border: none;
+      outline: none;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+    }
+    .btn.action:hover, .btn.action:focus {
+      background: linear-gradient(90deg, #162447 0%, #10023a 100%);
+      color: #fff;
+      box-shadow: 0 4px 16px #00b8d455;
+    }
+    .muted {
+      color: #b0b8c9;
+    }
+    .premium-bookings-header .bookings-title {
+      color: #fff;
+      text-shadow: 0 4px 24px rgba(11, 213, 248, 0.907);
+      font-family: 'Poppins', 'Inter', Arial, sans-serif;
+    }
+    .premium-bookings-header .bookings-subtitle {
+      color: #b0b8c9;
+    }
+    @media (max-width: 900px) {
+      .premium-bookings-cards-grid { grid-template-columns: 1fr 1fr; gap: 1.2em; }
+    }
+    @media (max-width: 600px) {
+      .premium-bookings-header { padding: 0 2vw; }
+      .bookings-title { font-size: 1.4em; }
+      .premium-bookings-cards-grid { grid-template-columns: 1fr; gap: 1em; }
+      .glass-card, .premium-card { padding: 1em 0.5em; }
+    }
+  </style>
+</head>
+<body class="dashboard-page premium-bg">
+  <div class="dashboard-bg-overlay"></div>
+  <aside class="sidebar premium-sidebar">
+    <div class="brand premium-logo">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav premium-nav">
+      <button class="nav-btn premium-back-btn" onclick="window.location.href='dashboard.html'">
+        <span class="icon">🏠</span>
+        <span class="label">Back to Dashboard</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard premium-dashboard bookings-main">
+    <header class="dashboard-header premium-bookings-header">
+      <div>
+        <h1 class="bookings-title">Bookings</h1>
+        <div class="bookings-subtitle">Choose what you want to book for your trip</div>
+      </div>
+    </header>
+    <section class="cards premium-bookings-cards-grid">
+      <a href="hotel-booking.html" class="card booking-option-btn hotel-booking-card glass-card premium-card hotel-primary-card">
+        <div class="booking-card-icon">🏨</div>
+        <h2>Hotels</h2>
+        <p class="muted">Book hotels for your trip</p>
+        <span class="booking-cta">Explore Hotels →</span>
+      </a>
+      <a href="flights.html" class="card booking-option-btn glass-card premium-card booking-enabled-card">
+        <div class="booking-card-icon">✈️</div>
+        <h2>Flights</h2>
+        <p class="muted">Book flights for your trip</p>
+        <span class="booking-cta">Explore Flights →</span>
+      </a>
+      <a href="cabs.html" class="card booking-option-btn glass-card premium-card booking-enabled-card">
+        <div class="booking-card-icon">🚕</div>
+        <h2>Cabs</h2>
+        <p class="muted">Book cabs for your trip</p>
+        <span class="booking-cta">Explore Cabs →</span>
+      </a>
+    </section>
+    <section id="hotels-form-section" style="display:none;width:100%;max-width:480px;margin:0 auto 32px;">
+      <form class="card" style="display:flex;flex-direction:column;gap:18px;">
+        <h2 style="margin:0 0 8px 0;">Hotel Booking</h2>
+        <input type="text" placeholder="Place / Location" required style="padding:12px;border-radius:10px;border:1px solid #333;background:rgba(0,0,0,0.18);color:#fff;font-size:15px;">
+        <input type="date" required style="padding:12px;border-radius:10px;border:1px solid #333;background:rgba(0,0,0,0.18);color:#fff;font-size:15px;">
+        <select required style="padding:12px;border-radius:10px;border:1px solid #333;background:rgba(0,0,0,0.18);color:#fff;font-size:15px;">
+          <option value="">Select Day</option>
+          <option>Monday</option>
+          <option>Tuesday</option>
+          <option>Wednesday</option>
+          <option>Thursday</option>
+          <option>Friday</option>
+          <option>Saturday</option>
+          <option>Sunday</option>
+        </select>
+        <select required style="padding:12px;border-radius:10px;border:1px solid #333;background:rgba(0,0,0,0.18);color:#fff;font-size:15px;">
+          <option value="">Select Time</option>
+          <option>Morning</option>
+          <option>Afternoon</option>
+          <option>Evening</option>
+        </select>
+        <input type="number" placeholder="Guests (optional)" min="1" style="padding:12px;border-radius:10px;border:1px solid #333;background:rgba(0,0,0,0.18);color:#fff;font-size:15px;">
+        <input type="number" placeholder="Rooms (optional)" min="1" style="padding:12px;border-radius:10px;border:1px solid #333;background:rgba(0,0,0,0.18);color:#fff;font-size:15px;">
+        <button type="button" class="btn action" id="search-hotels-btn">Search Hotels</button>
+      </form>
+    </section>
+    <section id="hotels-results-section" style="display:none;width:100%;max-width:900px;margin:0 auto 32px;">
+      <h2 style="font-size:1.3rem;color:#fff;margin-bottom:18px;">Results</h2>
+      <div class="cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:22px;">
+        <div class="card">
+          <div style="font-size:1.1rem;font-weight:700;">Hotel Grand Palace</div>
+          <div class="muted">Location: Mumbai</div>
+          <div class="muted">Date: 2026-01-20 &nbsp;|&nbsp; Time: Morning</div>
+          <div class="muted">Guests: 2 &nbsp;|&nbsp; Rooms: 1</div>
+          <button class="btn action" style="margin-top:12px;width:100%;">Book Now</button>
+        </div>
+        <div class="card">
+          <div style="font-size:1.1rem;font-weight:700;">Seaside Resort</div>
+          <div class="muted">Location: Goa</div>
+          <div class="muted">Date: 2026-01-22 &nbsp;|&nbsp; Time: Evening</div>
+          <div class="muted">Guests: 4 &nbsp;|&nbsp; Rooms: 2</div>
+          <button class="btn action" style="margin-top:12px;width:100%;">Book Now</button>
+        </div>
+      </div>
+    </section>
+    <div style="display:flex;gap:14px;justify-content:center;margin:32px 0 0 0;">
+      <!-- Back to Dashboard button removed as per requirements -->
+    </div>
+  </main>
+  <script>
+    document.getElementById('hotels-btn').onclick = function() {
+      document.getElementById('hotels-form-section').style.display = 'block';
+      document.getElementById('hotels-results-section').style.display = 'none';
+    };
+    document.getElementById('search-hotels-btn').onclick = function() {
+      document.getElementById('hotels-results-section').style.display = 'block';
+    };
+  </script>
+</body>
+</html>

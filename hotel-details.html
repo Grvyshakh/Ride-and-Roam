@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hotel Details - Ride & Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: #0f0930; color: #f8fafd; font-family: 'Poppins', Arial, sans-serif; margin:0; }
+    .hotel-details-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: url('https://images.unsplash.com/photo-1506744038136-462fa3a6c7f0?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+      filter: brightness(0.5) blur(2px);
+      width: 100vw;
+      height: 100vh;
+    }
+    .hotel-details-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2em;
+    }
+    .hotel-details-card {
+      background: rgba(24, 34, 54, 0.68);
+      border-radius: 22px;
+      box-shadow: 0 8px 32px 0 rgba(16, 26, 51, 0.22);
+      padding: 2.5em 2em;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      color: #f8fafd;
+      margin-bottom: 2em;
+    }
+    .hotel-details-title {
+      font-size: 2em;
+      font-weight: 700;
+      margin-bottom: 0.5em;
+      color: #fff;
+    }
+    .hotel-details-type {
+      font-size: 1.1em;
+      color: #00b8d4;
+      margin-bottom: 0.5em;
+    }
+    .hotel-details-distance {
+      font-size: 1em;
+      color: #b0b8c9;
+      margin-bottom: 1em;
+    }
+    .hotel-details-price {
+      font-size: 1.3em;
+      color: #fff;
+      margin-bottom: 1.2em;
+      font-weight: 700;
+    }
+    .btn {
+      background: linear-gradient(90deg, #00b8d4 0%, #162447 100%);
+      color: #fff;
+      font-weight: 700;
+      border-radius: 14px;
+      font-size: 1.08em;
+      box-shadow: 0 2px 8px #00b8d455;
+      border: none;
+      outline: none;
+      padding: 0.8em 2em;
+      margin-top: 1em;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+    }
+    .btn:hover, .btn:focus {
+      background: linear-gradient(90deg, #162447 0%, #10023a 100%);
+      color: #fff;
+      box-shadow: 0 4px 16px #00b8d455;
+    }
+  </style>
+</head>
+<body>
+  <div class="hotel-details-bg"></div>
+  <div class="hotel-details-content">
+    <div class="hotel-details-card">
+      <div class="hotel-details-title" id="hotel-details-title">Hotel Name</div>
+      <div class="hotel-details-type" id="hotel-details-type">Type</div>
+      <div class="hotel-details-distance" id="hotel-details-distance">Distance</div>
+      <div class="hotel-details-price">💰 ₹1000 per night</div>
+      <button class="btn" id="hotel-details-book-btn">Book Now</button>
+    </div>
+    <button class="btn" onclick="window.location.href='hotel-booking.html'">Back to Bookings</button>
+  </div>
+  <script>
+    // Populate hotel details from query params
+    const params = new URLSearchParams(window.location.search);
+    document.getElementById('hotel-details-title').textContent = params.get('name') || 'Hotel Name';
+    document.getElementById('hotel-details-type').textContent = params.get('type') || 'Type';
+    document.getElementById('hotel-details-distance').textContent = params.get('distance') ? params.get('distance') + ' meters away' : '';
+    document.getElementById('hotel-details-book-btn').onclick = function() {
+      // Redirect to booking form page
+      window.location.href = 'hotel-booking-form.html?' + params.toString();
+    };
+  </script>
+</body>
+</html>

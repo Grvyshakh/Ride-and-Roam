@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nearby Hotels | Ride & Roam</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="hotel-booking.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #11062d 0%, #100130 40%, #0c0322 80%, #0f033a 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #f8fafd;
+      font-family: 'Poppins', 'Inter', Arial, sans-serif;
+      position: relative;
+    }
+    #hotel-booking-container {
+      max-width: 680px;
+      margin: 3em auto;
+      padding: 2.2em 2em 2em 2em;
+      background: rgb(240, 237, 238);
+      box-shadow: 0 8px 32px 0 rgba(16, 26, 51, 0.22), 0 1.5px 8px 0 rgba(0,184,212,0.08);
+      backdrop-filter: blur(18px) saturate(120%);
+      -webkit-backdrop-filter: blur(18px) saturate(120%);
+      border-radius: 28px;
+      border: 1.5px solid rgba(0,184,212,0.13);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.7s cubic-bezier(.4,.2,.2,1);
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: none; }
+    }
+    .hotel-booking-controls {
+      display: flex;
+      gap: 1em;
+      margin-bottom: 1.5em;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .hotel-booking-input {
+      flex: 2;
+      padding: 0.9em 1.1em;
+      border-radius: 12px;
+      border: 1.5px solid #00b8d4;
+      font-size: 1.08em;
+      background: rgba(16,26,51,0.22);
+      color: #f8fafd;
+      transition: border 0.18s, background 0.18s;
+    }
+    .hotel-booking-input:focus {
+      border: 2px solid #00eaff;
+      background: rgba(12, 73, 229, 0.699);
+      outline: none;
+    }
+    .hotel-booking-btn {
+      flex: 1;
+      padding: 0.9em 0.5em;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #00b8d4 0%, #162447 100%);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.08em;
+      box-shadow: 0 2px 8px #00b8d455;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .hotel-booking-btn:hover, .hotel-booking-btn:focus {
+      background: linear-gradient(90deg, #162447 0%, #00b8d4 100%);
+      color: #fff;
+      box-shadow: 0 4px 16px #00b8d455;
+      transform: translateY(-2px) scale(1.04);
+    }
+    .hotel-booking-btn:active {
+      transform: scale(0.98);
+    }
+    .hotel-booking-btn#hotel-search-btn::before {
+      content: "\1F50D "; /* magnifying glass icon */
+      font-size: 1.1em;
+      vertical-align: middle;
+    }
+    .hotel-booking-btn#hotel-location-btn::before {
+      content: "\1F4CD "; /* location pin icon */
+      font-size: 1.1em;
+      vertical-align: middle;
+    }
+    .hotel-booking-filters {
+      display: flex;
+      gap: 1em;
+      margin-bottom: 1.5em;
+      align-items: center;
+      color: #b0b8c9;
+    }
+    .hotel-booking-filters label {
+      font-size: 1.02em;
+      color: #b0b8c9;
+      margin-right: 0.2em;
+    }
+    .hotel-booking-filters select {
+      border-radius: 10px;
+      border: 1.5px solid #00b8d4;
+      background: rgba(16,26,51,0.22);
+      color: #f8fafd;
+      font-size: 1.02em;
+      padding: 0.4em 1em;
+      transition: border 0.18s, background 0.18s;
+    }
+    #hotel-map {
+      width: 100%;
+      height: 320px;
+      border-radius: 18px;
+      margin-bottom: 1.5em;
+      box-shadow: 0 2px 12px 0 #00b8d422;
+      border: 1.5px solid rgba(0,184,212,0.13);
+      background: #101a33;
+    }
+    #hotel-results {
+      margin-top: 1.5em;
+    }
+    .hotel-result-card {
+      background: rgba(24, 34, 54, 0.38);
+      border-radius: 18px;
+      padding: 1.3em 1.2em 1.1em 1.2em;
+      margin-bottom: 1.2em;
+      box-shadow: 0 1px 8px rgba(0,184,212,0.08);
+      cursor: pointer;
+      transition: box-shadow 0.22s, transform 0.18s, background 0.18s;
+      color: #f8fafd;
+      position: relative;
+      overflow: hidden;
+      border: 1.5px solid rgba(0,184,212,0.13);
+      animation: fadeInUp 0.7s cubic-bezier(.4,.2,.2,1);
+    }
+    .hotel-result-card:hover {
+      box-shadow: 0 8px 32px #00b8d455;
+      background: rgba(24, 34, 54, 0.48);
+      transform: translateY(-4px) scale(1.02);
+    }
+    .hotel-result-title {
+      font-size: 1.18em;
+      font-weight: 700;
+      margin-bottom: 0.3em;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .hotel-result-title::before {
+      content: "\1F3E8 "; /* hotel icon */
+      font-size: 1.1em;
+      color: #00b8d4;
+    }
+    .hotel-result-type {
+      font-size: 1em;
+      color: #00b8d4;
+      margin-bottom: 0.3em;
+    }
+    .hotel-result-distance {
+      font-size: 0.98em;
+      color: #b0b8c9;
+      margin-bottom: 0.3em;
+    }
+    .hotel-result-link {
+      display: inline-block;
+      margin-top: 0.5em;
+      color: #00eaff;
+      text-decoration: underline;
+      font-size: 1em;
+      transition: color 0.18s;
+    }
+    .hotel-result-link:hover {
+      color: #fff;
+    }
+    .hotel-booking-loading {
+      text-align: center;
+      color: #00b8d4;
+      font-weight: 600;
+      margin: 1.5em 0;
+      font-size: 1.1em;
+    }
+    .hotel-booking-error {
+      color: #ff3d3d;
+      font-size: 1.08em;
+      margin: 1.5em 0;
+      text-align: center;
+    }
+    @media (max-width: 900px) {
+      #hotel-booking-container { padding: 1.2em 0.5em; }
+      .hotel-result-card { padding: 1em 0.7em; }
+    }
+    @media (max-width: 600px) {
+      #hotel-booking-container { padding: 0.5em 0.2em; }
+      .hotel-result-card { padding: 0.7em 0.3em; }
+    }
+  </style>
+</head>
+<body>
+  <div id="hotel-booking-container">
+    <div class="hotel-booking-controls">
+      <input id="hotel-search-input" class="hotel-booking-input" type="text" placeholder="Enter a place (ex: Kochi, Munnar...)" autocomplete="off">
+      <button id="hotel-search-btn" class="hotel-booking-btn">Search</button>
+      <button id="hotel-location-btn" class="hotel-booking-btn">Use My Location</button>
+      <button id="hotel-booking-btn" class="hotel-booking-btn nav-btn">
+      <span class="icon">←</span>
+      <span class="label">Back to bookings</span>
+</button>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var backBtn = document.getElementById('hotel-booking-btn');
+        if (backBtn) {
+          backBtn.addEventListener('click', function() {
+            window.location.href = 'bookings.html';
+          });
+        }
+      });
+    </script>
+    </div>
+    <div class="hotel-booking-filters">
+      <label for="hotel-type-filter">Type:</label>
+      <select id="hotel-type-filter">
+        <option value="all">All</option>
+        <option value="hotel">Hotels only</option>
+        <option value="resort">Resorts</option>
+        <option value="hostel">Hostels</option>
+        <option value="guest_house">Guest Houses</option>
+      </select>
+      <label for="hotel-radius-filter">Radius:</label>
+      <select id="hotel-radius-filter">
+        <option value="2000">2 km</option>
+        <option value="5000" selected>5 km</option>
+        <option value="10000">10 km</option>
+      </select>
+    </div>
+    <div id="hotel-booking-loading" class="hotel-booking-loading" style="display:none;"></div>
+    <div id="hotel-booking-error" class="hotel-booking-error" style="display:none;"></div>
+    <div id="hotel-map"></div>
+    <div id="hotel-results"></div>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="hotel-booking.js"></script>
+</body>
+</html>

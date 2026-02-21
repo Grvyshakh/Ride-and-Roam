@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Search Trips - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="window.location.href='dashboard.html'">
+        <span class="icon">🏠</span>
+        <span class="label">Back to Dashboard</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;">
+    <header class="dashboard-header" style="margin-bottom:24px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.2rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;">Search Trips</h1>
+    </header>
+    <section style="width:100%;max-width:700px;margin-bottom:24px;display:flex;gap:12px;">
+      <input id="trip-search-input" type="text" placeholder="Search by place..." style="flex:2;padding:12px 16px;font-size:1.1rem;border-radius:8px;border:1.5px solid #ccc;">
+      <input id="trip-date-input" type="date" style="flex:1;padding:12px 8px;font-size:1.1rem;border-radius:8px;border:1.5px solid #ccc;">
+    </section>
+    <section id="trip-list" class="cards" style="width:100%;max-width:900px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;"></section>
+    <div style="margin:32px auto 0 auto;max-width:900px;width:100%;display:flex;gap:16px;">
+      <button class="btn" onclick="window.location.href='destinations-join.html'">Back to Options</button>
+    </div>
+    <div id="trip-empty-state" style="text-align:center;color:#888;margin-top:32px;font-size:1.15em;">Search for a trip to join</div>
+  </main>
+  <script>
+    // Use only localStorage 'allTrips' for trip data
+    function getTrips() {
+      const trips = localStorage.getItem('allTrips');
+      return trips ? JSON.parse(trips) : [];
+    }
+
+    function renderTrips(filterPlace = '', filterDate = '', showEmpty = false) {
+      const tripList = document.getElementById('trip-list');
+      const emptyState = document.getElementById('trip-empty-state');
+      const trips = getTrips();
+      let filtered = trips;
+      // Filter by place (case-insensitive, matches 'place' or 'destination' field)
+      if (filterPlace) {
+        const placeLower = filterPlace.trim().toLowerCase();
+        filtered = filtered.filter(t => {
+          // Accept if 'place' or 'destination' field matches
+          let match = false;
+          if (t.place && t.place.toLowerCase().includes(placeLower)) match = true;
+          if (t.destination && t.destination.toLowerCase().includes(placeLower)) match = true;
+          // Also allow 'from' and 'to' for legacy/compatibility
+          if (t.from && t.from.toLowerCase().includes(placeLower)) match = true;
+          if (t.to && t.to.toLowerCase().includes(placeLower)) match = true;
+          return match;
+        });
+      }
+      // Filter by date (exact match)
+      if (filterDate) {
+        filtered = filtered.filter(t => t.date === filterDate);
+      }
+      tripList.innerHTML = '';
+      if ((filterPlace || filterDate) && filtered.length === 0) {
+        emptyState.style.display = 'block';
+        emptyState.textContent = 'No trips found for selected destination and date';
+        return;
+      } else if (!filterPlace && !filterDate) {
+        emptyState.style.display = 'block';
+        emptyState.textContent = 'Search for a trip to join';
+        return;
+      } else {
+        emptyState.style.display = 'none';
+      }
+      filtered.forEach(t => {
+        const el = document.createElement('div');
+        el.className = 'card trip-result-card';
+        el.style = 'padding:24px 18px;min-height:120px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:box-shadow 0.18s;';
+        // Prefer 'place' or 'destination' for display, fallback to 'from → to'
+        let tripTitle = t.place || t.destination || ((t.from || '') + (t.to ? ' → ' + t.to : ''));
+        el.innerHTML = `
+          <h2 style='margin:0;font-size:1.3rem;'>${tripTitle}</h2>
+          <div style='font-size:1.05rem;color:#b88;'>${t.date || ''}${t.time ? ' ' + t.time : ''}</div>
+          <div style='font-size:1.08rem;color:#888;'>Trip Code: <span style="font-weight:700;color:#00b8d4;">${t.code || t.tripCode}</span></div>
+        `;
+        el.onclick = function() {
+          showJoinCodeModal(t);
+        };
+        el.onmouseover = function() { el.style.boxShadow = '0 8px 32px #00b8d455'; };
+        el.onmouseout = function() { el.style.boxShadow = ''; };
+        tripList.appendChild(el);
+      });
+    }
+
+    function showJoinCodeModal(trip) {
+      let modal = document.createElement('div');
+      modal.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;z-index:9999;';
+      modal.innerHTML = `
+        <div class="card" style="max-width:420px;width:100%;background:#181f2a;padding:36px 28px 28px 28px;border-radius:18px;box-shadow:0 4px 32px #0005;text-align:center;">
+          <h2 style="margin-bottom:18px;color:#fff;font-size:1.5em;letter-spacing:0.5px;">Trip Join Code</h2>
+          <div style="margin-bottom:10px;font-size:1.08em;color:#eaf6ff;">${trip.from || ''}${trip.to ? ' → ' + trip.to : ''} (${trip.date || ''})</div>
+          <div id="join-code-display" style="font-size:2em;font-weight:700;color:#00b8d4;background:#232b3a;padding:10px 0 10px 0;border-radius:10px;margin:0 auto 18px auto;letter-spacing:2px;user-select:all;">${trip.code}</div>
+          <button id="copy-code-btn" class="btn action" style="margin-bottom:0;width:100%;background:#00b8d4;color:#fff;border-radius:10px;font-size:1.08em;">Copy Code</button>
+          <div style="margin-top:18px;"><button class="btn" onclick="document.body.removeChild(this.closest('.modal-join-code')||modal)">Close</button></div>
+        </div>
+      `;
+      modal.className = 'modal-join-code';
+      document.body.appendChild(modal);
+      modal.querySelector('#copy-code-btn').onclick = function() {
+        navigator.clipboard.writeText(trip.code);
+        modal.querySelector('#copy-code-btn').textContent = 'Copied!';
+        setTimeout(()=>{modal.querySelector('#copy-code-btn').textContent = 'Copy Code';}, 1200);
+      };
+      modal.onclick = function(e) { if (e.target === modal) document.body.removeChild(modal); };
+    }
+
+    document.getElementById('trip-search-input').addEventListener('input', e => {
+      renderTrips(e.target.value, document.getElementById('trip-date-input').value);
+    });
+    document.getElementById('trip-date-input').addEventListener('input', e => {
+      renderTrips(document.getElementById('trip-search-input').value, e.target.value);
+    });
+    // Initial state: show empty only
+    renderTrips('', '', true);
+  </script>
+  <style>
+    @media (max-width: 800px) {
+      #trip-list { grid-template-columns:1fr!important; }
+    }
+    .card h2 { margin: 0 0 6px 0; }
+  </style>
+</body>
+</html>

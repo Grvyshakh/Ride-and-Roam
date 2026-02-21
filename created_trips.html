@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Created Trips - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="window.location.href='dashboard.html'">
+        <span class="icon">🏠</span>
+        <span class="label">Back to Dashboard</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;">
+    <header class="dashboard-header" style="margin-bottom:24px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.2rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;">Created Trips</h1>
+    </header>
+    <section id="created-trips-list" class="cards" style="width:100%;max-width:900px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;"></section>
+    <div id="created-empty-state" style="text-align:center;color:#888;margin-top:32px;font-size:1.15em;">Loading your created trips...</div>
+    <div style="margin:32px auto 0 auto;max-width:900px;width:100%;display:flex;gap:16px;">
+      <button class="btn" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+    </div>
+  </main>
+  <script type="module">
+    import { auth, db } from './firebase-init.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+    import { collection, query, where, onSnapshot, getDoc, doc } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
+
+    const createdList = document.getElementById('created-trips-list');
+    const emptyState = document.getElementById('created-empty-state');
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        emptyState.textContent = 'You must be logged in.';
+        createdList.innerHTML = '';
+        return;
+      }
+      // Real-time listener for created trips
+      const tripsQ = query(collection(db, 'trips'), where('creatorId', '==', user.uid));
+      onSnapshot(tripsQ, async snap => {
+        createdList.innerHTML = '';
+        if (snap.empty) {
+          emptyState.textContent = 'You have not created any trips yet.';
+          return;
+        }
+        emptyState.style.display = 'none';
+        for (const docSnap of snap.docs) {
+          const t = docSnap.data();
+          // Fetch creator details
+          let creatorName = 'Unknown';
+          let creatorEmail = '';
+          try {
+            const userDoc = await getDoc(doc(db, 'users', t.creatorId));
+            if (userDoc.exists()) {
+              const u = userDoc.data();
+              creatorName = u.name || 'Unknown';
+              creatorEmail = u.email || '';
+            }
+          } catch {}
+          // Count members
+          const membersCount = Array.isArray(t.members) ? t.members.length : 0;
+          // Format created date
+          let createdDate = '';
+          if (t.createdAt && t.createdAt.toDate) {
+            createdDate = t.createdAt.toDate().toLocaleString();
+          } else if (t.createdAt && typeof t.createdAt === 'string') {
+            createdDate = new Date(t.createdAt).toLocaleString();
+          }
+          const el = document.createElement('div');
+          el.className = 'card trip-result-card';
+          el.style = 'padding:24px 18px;min-height:120px;display:flex;flex-direction:column;gap:8px;';
+          el.innerHTML = `
+            <h2 style='margin:0;font-size:1.3rem;'>${t.tripName || t.from || ''}${t.destination ? ' → ' + t.destination : ''}</h2>
+            <div style='font-size:1.05rem;color:#b88;'>Created: ${createdDate || 'N/A'}</div>
+            <div style='font-size:0.98rem;color:#888;'>Members joined: ${membersCount}</div>
+            <div style='font-size:0.98rem;color:#888;'>Creator: ${creatorName} (${creatorEmail})</div>
+            <button class="btn action" style="margin-top:10px;" onclick="window.location.href='chat.html?tripId=${docSnap.id}'">Open Chat</button>
+          `;
+          createdList.appendChild(el);
+        }
+      });
+    });
+  </script>
+  <style>
+    @media (max-width: 800px) {
+      #created-trips-list { grid-template-columns:1fr!important; }
+    }
+    .card h2 { margin: 0 0 6px 0; }
+  </style>
+</body>
+</html>

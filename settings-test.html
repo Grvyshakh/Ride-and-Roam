@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Minimal Test</title>
+  <style>
+    body {
+      background: #162447;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn {
+      background: #00b8d4;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 28px;
+      font-size: 1.1rem;
+      margin: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #0097a7; }
+    .danger { background: #ff3d3d; }
+    .danger:hover { background: #b71c1c; }
+  </style>
+</head>
+<body>
+  <h1>Settings - Minimal Test</h1>
+  <button class="btn" id="edit-profile-btn">Edit Profile</button>
+  <button class="btn" id="change-password-btn">Change Password</button>
+  <button class="btn danger" id="delete-account-btn">Delete Account</button>
+  <button class="btn" id="back-btn">Back to Dashboard</button>
+  <script>
+    document.getElementById('edit-profile-btn').onclick = function() {
+      alert('Edit Profile button works!');
+    };
+    document.getElementById('change-password-btn').onclick = function() {
+      alert('Change Password button works!');
+    };
+    document.getElementById('delete-account-btn').onclick = function() {
+      if (confirm('Are you sure you want to delete your account?')) {
+        alert('Delete Account button works!');
+      }
+    };
+    document.getElementById('back-btn').onclick = function() {
+      alert('Back to Dashboard button works!');
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Join Trip - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      
+      <button class="nav-btn" onclick="window.location.href='destinations-join.html'">
+        <span class="icon">🌍</span>
+        <span class="label">Back to options</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;">
+    <header class="dashboard-header" style="margin-bottom:32px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.2rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;">Join Trip</h1>
+    </header>
+    <form id="join-trip-form" class="card" style="max-width:420px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:18px;">
+      <input id="join-code" type="text" placeholder="Enter Trip Code" style="padding:12px;border-radius:10px;border:1px solid #333;background:rgba(255,255,255,0.18);color:#111;font-size:15px;">
+      <button type="submit" class="btn action" style="margin-top:8px;">Join by Code</button>
+    </form>
+    <div id="trip-details" class="card" style="display:none;max-width:420px;width:100%;margin:18px auto 0 auto;padding:18px 16px 10px 16px;"></div>
+    <div style="margin:32px auto 0 auto;max-width:900px;width:100%;display:flex;gap:16px;">
+      <button class="btn" onclick="window.location.href='trips.html'" style="margin:0 auto;">Back to Trips</button>
+    </div>
+  </main>
+  <script>
+    // Only allow joining by code, validate against 'allTrips', show trip details, and save to 'joinedTrips' (no duplicates)
+    const form = document.getElementById('join-trip-form');
+    const codeInput = document.getElementById('join-code');
+    const tripDetails = document.getElementById('trip-details');
+    form.onsubmit = function(e) {
+      e.preventDefault();
+      const code = codeInput.value.trim().toUpperCase();
+      if (!code) return;
+      const trips = JSON.parse(localStorage.getItem('allTrips')||'[]');
+      const found = trips.find(trip => trip.code && trip.code.toUpperCase() === code);
+      if(found) {
+        // Show trip details
+        tripDetails.style.display = 'block';
+        tripDetails.innerHTML = `
+          <h2 style='margin:0 0 8px 0;font-size:1.2rem;'>${found.from || found.place || ''}${found.to ? ' → ' + found.to : ''}</h2>
+          <div style='font-size:1.05rem;color:#b88;'>${found.date || ''} ${found.time || ''}</div>
+          <div style='font-size:0.98rem;color:#888;'>Trip Code: <span style="font-weight:700;color:#00b8d4;">${found.code}</span></div>
+          <div style='font-size:0.98rem;color:#888;'>Admin: ${found.admin || found.creator || 'N/A'}</div>
+          <div style='font-size:0.95rem;color:#888;'>${found.notes || ''}</div>
+          <button id="confirm-join-btn" class="btn action" style="margin-top:16px;width:100%;">Confirm Join</button>
+        `;
+        document.getElementById('confirm-join-btn').onclick = function() {
+          // Get current user
+          const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+          const username = currentUser.username || currentUser.name || '';
+          if (!username) {
+            alert('You must be logged in to join a trip.');
+            return;
+          }
+          // User trips key
+          const userTripsKey = 'userTrips_' + username;
+          let userTrips = JSON.parse(localStorage.getItem(userTripsKey) || '[]');
+          // Prevent duplicate join
+          if (!userTrips.some(t => (t.code || t.tripCode) === (found.code || found.tripCode))) {
+            userTrips.push(found);
+            localStorage.setItem(userTripsKey, JSON.stringify(userTrips));
+          }
+          window.location.href = 'joined-trip.html';
+        };
+      } else {
+        tripDetails.style.display = 'block';
+        tripDetails.innerHTML = `<span style='color:#b33;'>Trip code not found. Please check and try again.</span>`;
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Email - Ride & Roam</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body class="settings-page">
+  <header class="settings-header">
+    <button id="back-btn" class="back-btn">← Back to Dashboard</button>
+    <h1>Update Email</h1>
+  </header>
+
+  <main class="settings-main">
+    <form class="update-email-form">
+      <label for="email">New Email Address</label>
+      <input type="email" id="email" name="email" required>
+      <button type="submit" class="btn">Update Email</button>
+      <div id="email-verification" style="margin-top:10px;color:green;"></div>
+    </form>
+  </main>
+
+  <script src="settings.js"></script>
+  <script>
+    document.getElementById('back-btn').addEventListener('click', () => window.location.href = 'dashboard.html');
+    document.querySelector('.update-email-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('email-verification').textContent = 'Verification email sent! (mock)';
+      setTimeout(() => {
+        window.location.href = 'settings.html';
+      }, 1500);
+    });
+  </script>
+</body>
+</html>

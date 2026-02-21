@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Current Journey - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="window.location.href='dashboard.html'">
+        <span class="icon">🏠</span>
+        <span class="label">Back to Dashboard</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;">
+    <header class="dashboard-header" style="margin-bottom:32px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.2rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;">Join Trip</h1>
+      <p style="color:rgba(255,255,255,0.7);font-size:1rem;margin-top:12px;">Enter your trip code to access your journey</p>
+    </header>
+    <form id="journey-form" class="card" style="max-width:420px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:18px;">
+      <div style="position:relative;">
+        <input id="trip-code-input" type="text" placeholder="Enter Trip Code (e.g., ABC123)" required style="padding:12px;border-radius:10px;border:1px solid #333;background:rgba(255,255,255,0.18);color:#111;font-size:15px;width:100%;text-transform:uppercase;letter-spacing:1px;font-weight:600;">
+        <div style="font-size:0.85em;color:rgba(255,255,255,0.6);margin-top:8px;">
+          💡 Get your trip code from the trip creator
+        </div>
+      </div>
+      <button type="submit" class="btn action" style="margin-top:8px;background:linear-gradient(135deg,#00d4ff,#00b8d4);font-weight:700;font-size:1.1rem;">
+        🔍 Verify Trip Code
+      </button>
+    </form>
+    <div id="journey-status-msg" style="margin-top:18px;font-weight:600;max-width:420px;width:100%;text-align:center;"></div>
+    <div style="margin:32px auto 0 auto;max-width:900px;width:100%;display:flex;gap:16px;justify-content:center;">
+      <button class="btn" onclick="window.location.href='dashboard.html'" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);">← Back to Dashboard</button>
+    </div>
+  </main>
+<script>
+// Trip code validation
+const form = document.getElementById('journey-form');
+form.onsubmit = function(e) {
+  e.preventDefault();
+  const code = document.getElementById('trip-code-input').value.trim().toUpperCase();
+  const msg = document.getElementById('journey-status-msg');
+  
+  console.log('Validating trip code:', code);
+  
+  // Get trips from allTrips (matches create-trips.html)
+  const allTrips = JSON.parse(localStorage.getItem('allTrips')||'[]');
+  console.log('Available trips:', allTrips.length);
+  
+  // Find trip by code or tripCode
+  const trip = allTrips.find(t => {
+    const tripCode = (t.code || t.tripCode || '').toUpperCase();
+    return tripCode === code;
+  });
+  
+  if (!trip) {
+    msg.textContent = '❌ Invalid trip code. Please check and try again.';
+    msg.style.color = '#d32f2f';
+    console.log('Trip not found with code:', code);
+    return;
+  }
+  
+  console.log('Trip found:', trip);
+  
+  // Save validated trip for chat access
+  localStorage.setItem('rnr_validated_trip', JSON.stringify(trip));
+  localStorage.setItem('rnr_current_trip', JSON.stringify(trip));
+  
+  // Check admin access
+  const currentUser = localStorage.getItem('rnr_trip_admin');
+  const profile = JSON.parse(localStorage.getItem('profile') || '{}');
+  const username = profile.username || profile.email || currentUser || '';
+  
+  console.log('Current user:', currentUser);
+  console.log('Trip creator:', trip.creator);
+  console.log('Username:', username);
+  
+  // Check if user is the creator (admin)
+  const isCreator = currentUser && currentUser === trip.creator;
+  const isCreatorByUsername = username && (username === trip.creatorUsername || username === trip.creatorId);
+  
+  if (isCreator || isCreatorByUsername) {
+    msg.textContent = '✅ Trip code verified. Admin access granted.';
+    msg.style.color = '#2dd06f';
+    setTimeout(() => {
+      window.location.href = 'chat.html?code=' + encodeURIComponent(trip.code || trip.tripCode);
+    }, 1200);
+  } else {
+    // Allow members to join even if not creator
+    msg.textContent = '✅ Trip code verified! Redirecting to trip details...';
+    msg.style.color = '#00d4ff';
+    setTimeout(() => {
+      window.location.href = 'chat.html?code=' + encodeURIComponent(trip.code || trip.tripCode);
+    }, 1200);
+  }
+};
+
+// Auto-uppercase input
+const tripCodeInput = document.getElementById('trip-code-input');
+tripCodeInput.addEventListener('input', function() {
+  this.value = this.value.toUpperCase();
+});
+
+// Show recent trips if available
+window.addEventListener('DOMContentLoaded', function() {
+  const allTrips = JSON.parse(localStorage.getItem('allTrips')||'[]');
+  const profile = JSON.parse(localStorage.getItem('profile') || '{}');
+  const username = profile.username || profile.email || '';
+  
+  // Filter user's trips
+  const userTrips = allTrips.filter(t => {
+    return t.creatorUsername === username || t.creatorId === username || t.creator === localStorage.getItem('rnr_trip_admin');
+  });
+  
+  if (userTrips.length > 0) {
+    console.log('User has', userTrips.length, 'trip(s)');
+    
+    // Show quick access to recent trips
+    const recentTrip = userTrips[userTrips.length - 1];
+    const msg = document.getElementById('journey-status-msg');
+    msg.innerHTML = `<div style="margin-top:24px;padding:16px;background:rgba(0,184,212,0.1);border:1px solid rgba(0,184,212,0.3);border-radius:12px;color:#00d4ff;text-align:left;">
+      <div style="font-size:0.9em;opacity:0.8;margin-bottom:8px;">📍 Your Recent Trip:</div>
+      <strong style="font-size:1.1em;">${recentTrip.from}</strong> ${recentTrip.to ? '→ <strong>' + recentTrip.to + '</strong>' : ''}<br>
+      <div style="margin-top:8px;padding:8px 12px;background:rgba(0,212,255,0.2);border-radius:8px;display:inline-block;">
+        <span style="font-size:0.85em;opacity:0.8;">Code: </span><strong style="letter-spacing:1px;">${recentTrip.code || recentTrip.tripCode}</strong>
+      </div>
+    </div>`;
+    msg.style.color = '#00d4ff';
+  }
+});
+</script>
+</body>
+</html>

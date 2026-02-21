@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Trip Created Successfully</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="window.location.href='dashboard.html'">
+        <span class="icon">🏠</span>
+        <span class="label">Back to Dashboard</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;">
+    <header class="dashboard-header" style="margin-bottom:32px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.2rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;">Trip Successfully Created</h1>
+    </header>
+    <div class="card" style="max-width:420px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:18px;align-items:center;">
+      <div style="margin-top:18px;color:#2dd06f;font-size:1.4em;font-weight:700;">✅ Trip Created Successfully!</div>
+      <div id="creator-name" style="font-size:1.1em;color:#00b8d4;font-weight:600;"></div>
+      <div style="font-size:1.08em;color:#eaf6ff;margin-top:8px;">Your unique trip code:</div>
+      <div style="position:relative;width:100%;display:flex;justify-content:center;">
+        <div id="trip-code" style="font-size:2.2em;font-weight:800;color:#00d4ff;background:#232b3a;padding:16px 24px;border-radius:12px;letter-spacing:3px;user-select:all;border:2px solid rgba(0,212,255,0.3);box-shadow:0 4px 20px rgba(0,212,255,0.2);"></div>
+      </div>
+      <button id="copy-code-btn" class="btn action" style="width:100%;background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(0,184,212,0.2));border:1px solid rgba(0,212,255,0.4);color:#00d4ff;font-weight:700;">
+        📋 Copy Trip Code
+      </button>
+      <div style="margin-top:12px;padding:16px;background:rgba(0,184,212,0.1);border-radius:12px;border:1px solid rgba(0,184,212,0.2);width:100%;">
+        <div style="font-size:0.95em;color:#b0c4d4;line-height:1.6;">
+          Share this code with others so they can join your trip!
+        </div>
+      </div>
+      <button class="btn" style="margin-top:18px;width:100%;background:#232b3a;color:#fff;border-radius:10px;font-size:1.08em;font-weight:600;" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+    </div>
+  </main>
+  <script>
+    // Get params from URL
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code') || '';
+    
+    console.log('Trip code from URL:', code);
+    
+    // Display trip code
+    const tripCodeElement = document.getElementById('trip-code');
+    if (code) {
+      tripCodeElement.textContent = code;
+    } else {
+      tripCodeElement.textContent = 'ERROR';
+      tripCodeElement.style.color = '#ff4757';
+      console.error('No trip code found in URL');
+    }
+    
+    // Get trip details from localStorage
+    const currentTrip = JSON.parse(localStorage.getItem('rnr_current_trip') || '{}');
+    if (currentTrip.creator) {
+      document.getElementById('creator-name').textContent = `Creator: ${currentTrip.creator}`;
+    }
+    
+    // Copy code functionality
+    document.getElementById('copy-code-btn').addEventListener('click', function() {
+      if (!code) {
+        alert('No code to copy!');
+        return;
+      }
+      
+      // Copy to clipboard
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(() => {
+          this.textContent = '✅ Copied!';
+          this.style.background = 'linear-gradient(135deg,rgba(45,208,111,0.2),rgba(45,208,111,0.15))';
+          this.style.borderColor = 'rgba(45,208,111,0.4)';
+          this.style.color = '#2dd06f';
+          
+          setTimeout(() => {
+            this.textContent = '📋 Copy Trip Code';
+            this.style.background = 'linear-gradient(135deg,rgba(0,212,255,0.2),rgba(0,184,212,0.2))';
+            this.style.borderColor = 'rgba(0,212,255,0.4)';
+            this.style.color = '#00d4ff';
+          }, 2000);
+        }).catch(err => {
+          console.error('Copy failed:', err);
+          alert('Failed to copy. Please copy manually: ' + code);
+        });
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = code;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          this.textContent = '✅ Copied!';
+          this.style.background = 'linear-gradient(135deg,rgba(45,208,111,0.2),rgba(45,208,111,0.15))';
+          this.style.borderColor = 'rgba(45,208,111,0.4)';
+          this.style.color = '#2dd06f';
+          setTimeout(() => {
+            this.textContent = '📋 Copy Trip Code';
+            this.style.background = 'linear-gradient(135deg,rgba(0,212,255,0.2),rgba(0,184,212,0.2))';
+            this.style.borderColor = 'rgba(0,212,255,0.4)';
+            this.style.color = '#00d4ff';
+          }, 2000);
+        } catch (err) {
+          alert('Failed to copy. Please copy manually: ' + code);
+        }
+        document.body.removeChild(textArea);
+      }
+    });
+  </script>
+</body>
+</html>

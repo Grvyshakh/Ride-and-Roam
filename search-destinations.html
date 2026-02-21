@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Search Destinations - Ride & Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="window.location.href='destinations-join.html'">
+        <span class="icon">⬅️</span>
+        <span class="label">Back to Options</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;">
+    <header class="dashboard-header" style="margin-bottom:24px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.2rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;">Search Destinations</h1>
+    </header>
+    <section style="width:100%;max-width:700px;margin-bottom:24px;">
+      <input id="search-input" type="text" placeholder="Search destinations..." style="width:100%;padding:12px 16px;font-size:1.1rem;border-radius:8px;border:1.5px solid #ccc;">
+    </section>
+    <section id="dest-list" class="cards" style="width:100%;max-width:900px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;"></section>
+  </main>
+  <script>
+    const destinations = [
+      { name: 'Taj Mahal', category: 'Heritage', city: 'Agra', state: 'Uttar Pradesh' },
+      { name: 'Goa Beaches', category: 'Beach', city: 'Goa', state: 'Goa' },
+      { name: 'Jaipur City Palace', category: 'Heritage', city: 'Jaipur', state: 'Rajasthan' },
+      { name: 'Manali', category: 'Hill station', city: 'Manali', state: 'Himachal Pradesh' },
+      { name: 'Varanasi Ghats', category: 'Heritage', city: 'Varanasi', state: 'Uttar Pradesh' },
+      { name: 'Kerala Backwaters', category: 'Beach', city: 'Alleppey', state: 'Kerala' },
+      { name: 'Ooty', category: 'Hill station', city: 'Ooty', state: 'Tamil Nadu' },
+      { name: 'Mysore Palace', category: 'Heritage', city: 'Mysore', state: 'Karnataka' },
+      { name: 'Rishikesh', category: 'Hill station', city: 'Rishikesh', state: 'Uttarakhand' },
+      { name: 'Mumbai', category: 'City', city: 'Mumbai', state: 'Maharashtra' },
+      { name: 'Kolkata', category: 'City', city: 'Kolkata', state: 'West Bengal' },
+      { name: 'Puri Beach', category: 'Beach', city: 'Puri', state: 'Odisha' },
+      { name: 'Darjeeling', category: 'Hill station', city: 'Darjeeling', state: 'West Bengal' },
+      { name: 'Delhi Red Fort', category: 'Heritage', city: 'Delhi', state: 'Delhi' },
+      { name: 'Chennai Marina Beach', category: 'Beach', city: 'Chennai', state: 'Tamil Nadu' },
+      { name: 'Shimla', category: 'Hill station', city: 'Shimla', state: 'Himachal Pradesh' },
+      { name: 'Hyderabad Charminar', category: 'Heritage', city: 'Hyderabad', state: 'Telangana' },
+      { name: 'Bangalore', category: 'City', city: 'Bangalore', state: 'Karnataka' },
+      { name: 'Udaipur', category: 'Heritage', city: 'Udaipur', state: 'Rajasthan' },
+      { name: 'Pondicherry', category: 'Beach', city: 'Puducherry', state: 'Puducherry' }
+    ];
+    const destList = document.getElementById('dest-list');
+    const searchInput = document.getElementById('search-input');
+    function renderList(filter = '') {
+      destList.innerHTML = '';
+      const filtered = destinations.filter(d => d.name.toLowerCase().includes(filter.toLowerCase()) || d.city.toLowerCase().includes(filter.toLowerCase()) || d.state.toLowerCase().includes(filter.toLowerCase()));
+      if (filtered.length === 0) {
+        destList.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#888;">No destinations found.</div>';
+        return;
+      }
+      filtered.forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.style = 'padding:24px 18px;min-height:120px;display:flex;flex-direction:column;gap:8px;';
+        el.innerHTML = `<h2 style='margin:0;font-size:1.3rem;'>${d.name}</h2><div style='font-size:1.05rem;color:#b88;'>${d.city}, ${d.state}</div><div style='font-size:0.98rem;color:#888;'>${d.category}</div>`;
+        destList.appendChild(el);
+      });
+    }
+    searchInput.addEventListener('input', e => renderList(e.target.value));
+    renderList();
+  </script>
+  <style>
+    @media (max-width: 800px) {
+      #dest-list { grid-template-columns:1fr!important; }
+    }
+    .card h2 { margin: 0 0 6px 0; }
+  </style>
+</body>
+</html>

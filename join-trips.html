@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Join Trips - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="window.location.href='dashboard.html'">
+        <span class="icon">🏠</span>
+        <span class="label">Back to Dashboard</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#181f2a;">
+    <header class="dashboard-header" style="margin-bottom:28px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.1rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;color:#fff;">Join Trips</h1>
+    </header>
+    <form class="card" style="max-width:420px;width:100%;margin:0 auto 32px;display:flex;flex-direction:column;gap:16px;background:#232b3a;border-radius:16px;box-shadow:0 4px 24px #0003;padding:28px 24px 18px 24px;">
+      <input type="text" placeholder="From" required style="padding:12px 14px;border-radius:8px;border:1px solid #333;background:#181f2a;color:#fff;font-size:1.08em;">
+      <input type="text" placeholder="To" required style="padding:12px 14px;border-radius:8px;border:1px solid #333;background:#181f2a;color:#fff;font-size:1.08em;">
+      <input type="date" required style="padding:12px 14px;border-radius:8px;border:1px solid #333;background:#181f2a;color:#fff;font-size:1.08em;">
+      <select style="padding:12px 14px;border-radius:8px;border:1px solid #333;background:#181f2a;color:#fff;font-size:1.08em;">
+        <option>Choose Option</option>
+      </select>
+      <button class="btn action" style="margin-top:10px;background:#00b8d4;color:#fff;border-radius:8px;font-size:1.08em;">Join</button>
+    </form>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:24px;margin-top:18px;">
+      <button class="btn action" style="font-size:1.1rem;padding:14px 32px;min-width:180px;background:#232b3a;color:#fff;border-radius:10px;box-shadow:0 2px 8px #0002;" onclick="window.location.href='create-trips.html'">Create</button>
+      <button class="btn action" style="font-size:1.1rem;padding:14px 32px;min-width:180px;background:#232b3a;color:#fff;border-radius:10px;box-shadow:0 2px 8px #0002;" onclick="window.location.href='search-and-join.html'">Search & Join</button>
+      <button class="btn" style="margin-top:10px;background:#232b3a;color:#fff;border-radius:10px;box-shadow:0 2px 8px #0002;" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+    </div>
+  </main>
+    </div>
+  </main>
+</body>
+</html>

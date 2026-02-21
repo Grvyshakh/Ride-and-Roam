@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Location | Ride & Roam</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="live-location.css">
+</head>
+<body class="live-location-bg">
+  <div class="live-location-premium-bg" style="background:#101a33;min-height:100vh;">
+    <div class="live-location-header">
+      <div class="header-content">
+        <h1 class="live-location-title">Live Location</h1>
+        <div class="live-location-subtitle">Track your journey in real-time &amp; find help nearby</div>
+      </div>
+      <button id="back-dashboard" class="live-location-btn back-btn">Back to Dashboard</button>
+      <!-- Only one Back to Dashboard button kept -->
+    </div>
+    <div class="live-location-main">
+      <div class="live-location-left">
+        <div class="glass-card map-card">
+          <div class="map-card-header">
+            <span class="map-status-pill" id="map-status-pill">Disconnected</span>
+          </div>
+          <div id="live-map"></div>
+          <div id="live-location-info" class="live-location-info"></div>
+          <div id="live-location-error" class="live-location-error"></div>
+        </div>
+      </div>
+      <div class="live-location-right">
+        <div class="glass-card controls-card">
+          <div class="live-location-controls">
+            <button id="start-tracking" class="live-location-btn">Start Tracking</button>
+            <button id="stop-tracking" class="live-location-btn" disabled>Stop Tracking</button>
+          </div>
+          <span id="tracking-status" class="live-location-status off">Tracking OFF</span>
+        </div>
+        <div class="glass-card nearby-card">
+          <div class="nearby-places-controls">
+            <button class="nearby-btn" data-type="hospital"><span class="nearby-icon">🏥</span> <span>Hospitals</span></button>
+            <button class="nearby-btn" data-type="police"><span class="nearby-icon">🚓</span> <span>Police</span></button>
+          
+          </div>
+          <div id="nearby-loading" class="nearby-loading" style="display:none;"></div>
+          <div id="nearby-error" class="nearby-error" style="display:none;"></div>
+          <div id="nearby-results" class="nearby-results-list"></div>
+        </div>
+      </div>
+    </div>
+    <div class="live-location-blobs">
+      <div class="blob blob1"></div>
+      <div class="blob blob2"></div>
+      <div class="blob blob3"></div>
+    </div>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="live-location.js"></script>
+</body>
+</html>

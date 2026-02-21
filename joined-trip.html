@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Joined Trip - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="window.location.href='my-trips.html'">
+        <span class="icon">🧳</span>
+        <span class="label">Back to My Trips</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;">
+    <header class="dashboard-header" style="margin-bottom:24px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.2rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;">Trip Chat</h1>
+    </header>
+    <section id="trip-details-header" class="card" style="max-width:600px;width:100%;margin-bottom:18px;padding:18px 16px 10px 16px;"></section>
+    <section id="chat-section" class="card" style="max-width:600px;width:100%;padding:18px 16px 10px 16px;display:flex;flex-direction:column;gap:12px;">
+      <div id="chat-messages" style="min-height:180px;max-height:320px;overflow-y:auto;margin-bottom:12px;"></div>
+      <form id="chat-form" style="display:flex;gap:8px;">
+        <input id="chat-input" type="text" placeholder="Type a message..." style="flex:1;padding:10px 12px;border-radius:8px;border:1px solid #ccc;">
+        <button type="submit" class="btn action">Send</button>
+      </form>
+    </section>
+    <div style="margin:32px auto 0 auto;max-width:900px;width:100%;display:flex;gap:16px;">
+      <!-- Removed duplicate navigation button -->
+    </div>
+  </main>
+  <script>
+    // Get current user
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const username = currentUser.username || currentUser.name || '';
+    const userTripsKey = 'userTrips_' + username;
+    const userTrips = JSON.parse(localStorage.getItem(userTripsKey) || '[]');
+    // Find the most recent joined trip (not created by user)
+    const joinedTrip = userTrips.reverse().find(trip => trip.creatorUsername !== username);
+    const tripHeader = document.getElementById('trip-details-header');
+    if(joinedTrip) {
+      tripHeader.innerHTML = `
+        <h2 style='margin:0 0 8px 0;font-size:1.2rem;'>${joinedTrip.from || joinedTrip.place || ''}${joinedTrip.to ? ' → ' + joinedTrip.to : ''}</h2>
+        <div style='font-size:1.05rem;color:#b88;'>${joinedTrip.date || ''} ${joinedTrip.time || ''}</div>
+        <div style='font-size:0.98rem;color:#888;'>Trip Code: <span style="font-weight:700;color:#00b8d4;">${joinedTrip.code}</span></div>
+        <div style='font-size:0.98rem;color:#888;'>Admin: ${joinedTrip.admin || joinedTrip.creator || 'N/A'}</div>
+        <div style='font-size:0.95rem;color:#888;'>${joinedTrip.notes || ''}</div>
+      `;
+    } else {
+      tripHeader.innerHTML = `<span style='color:#b33;'>No joined trip found.</span>`;
+    }
+
+    // Chat logic (localStorage per trip code)
+    const chatMessagesDiv = document.getElementById('chat-messages');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    let chatCode = trip ? trip.code : null;
+    function renderChat() {
+      if(!chatCode) return;
+      let messages = JSON.parse(localStorage.getItem('chat_'+chatCode)||'[]');
+      chatMessagesDiv.innerHTML = '';
+      messages.forEach(msg => {
+        const msgDiv = document.createElement('div');
+        msgDiv.style = 'margin-bottom:6px;padding:6px 10px;border-radius:8px;background:#eaf6ff;color:#222;';
+        msgDiv.textContent = `${msg.name||'User'}: ${msg.text}`;
+        chatMessagesDiv.appendChild(msgDiv);
+      });
+      chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+    }
+    chatForm.onsubmit = function(e) {
+      e.preventDefault();
+      if(!chatCode) return;
+      let text = chatInput.value.trim();
+      if(!text) return;
+      let messages = JSON.parse(localStorage.getItem('chat_'+chatCode)||'[]');
+      let name = localStorage.getItem('rnr_group_username_'+chatCode) || 'User';
+      messages.push({name, text, time: Date.now()});
+      localStorage.setItem('chat_'+chatCode, JSON.stringify(messages));
+      chatInput.value = '';
+      renderChat();
+    };
+    renderChat();
+  </script>
+</body>
+</html>

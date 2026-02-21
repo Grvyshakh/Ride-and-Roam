@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Profile - Ride & Roam</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body class="settings-page">
+  <header class="settings-header">
+    <button id="back-btn" class="back-btn">← Back to Dashboard</button>
+    <h1>Edit Profile</h1>
+  </header>
+
+  <main class="settings-main">
+    <form class="edit-profile-form" id="edit-profile-form">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required>
+
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" name="phone" required placeholder="+91XXXXXXXXXX">
+      <div id="phone-error" style="color:#ff3d3d;font-size:0.98em;display:none;margin-top:2px;">Please enter a valid Indian phone number (+91XXXXXXXXXX).</div>
+      <button type="submit" class="btn">Save Changes</button>
+    </form>
+  </main>
+
+  <script>
+    // Load existing profile
+    const form = document.getElementById('edit-profile-form');
+    const nameInput = document.getElementById('name');
+    const usernameInput = document.getElementById('username');
+    const phoneInput = document.getElementById('phone');
+    const profile = JSON.parse(localStorage.getItem('profile') || '{}');
+    if(profile.name) nameInput.value = profile.name;
+    if(profile.username) usernameInput.value = profile.username;
+    if(profile.phone) phoneInput.value = profile.phone;
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      // Validate phone number for +91XXXXXXXXXX
+      const phoneVal = phoneInput.value.trim();
+      const phonePattern = /^\+91[0-9]{10}$/;
+      const phoneError = document.getElementById('phone-error');
+      if (!phonePattern.test(phoneVal)) {
+        phoneError.style.display = 'block';
+        phoneInput.focus();
+        return;
+      } else {
+        phoneError.style.display = 'none';
+      }
+      const updatedProfile = {
+        name: nameInput.value,
+        username: usernameInput.value,
+        phone: phoneVal
+      };
+      // Update Firestore first, then localStorage and UI
+      let updateSuccess = false;
+      try {
+        const { auth, db } = await import('./firebase-init.js');
+        const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js');
+        const { doc, updateDoc } = await import('https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js');
+        await new Promise((resolve) => {
+          onAuthStateChanged(auth, async (user) => {
+            if (user) {
+              await updateDoc(doc(db, 'users', user.uid), updatedProfile);
+              updateSuccess = true;
+              resolve();
+            } else {
+              resolve();
+            }
+          });
+        });
+      } catch (err) {
+        console.warn('Failed to update profile in Firestore', err);
+      }
+      // Always update localStorage and UI
+      localStorage.setItem('profile', JSON.stringify(updatedProfile));
+      window.dispatchEvent(new Event('profileUpdated'));
+      alert(updateSuccess ? 'Profile updated!' : 'Profile updated (local only)!');
+      window.location.href = 'dashboard.html';
+    });
+    document.getElementById('back-btn').addEventListener('click', function() {
+      window.location.href = 'dashboard.html';
+    });
+  </script>
+</body>
+</html>

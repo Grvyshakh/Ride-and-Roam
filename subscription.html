@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Subscription - Ride & Roam</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="easypayio-gateway.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      min-height: 100vh;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* Animated Background */
+    .subscription-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .subscription-bg::before,
+    .subscription-bg::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.3;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .subscription-bg::before {
+      width: 600px;
+      height: 600px;
+      background: linear-gradient(135deg, #00d4ff, #00b8d4);
+      top: -200px;
+      right: -200px;
+      animation-delay: 0s;
+    }
+
+    .subscription-bg::after {
+      width: 500px;
+      height: 500px;
+      background: linear-gradient(135deg, #7b2ff7, #f107a3);
+      bottom: -150px;
+      left: -150px;
+      animation-delay: 10s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(50px, -50px) scale(1.1); }
+      66% { transform: translate(-50px, 50px) scale(0.9); }
+    }
+
+    /* Container */
+    .subscription-container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 24px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Header */
+    .subscription-header {
+      text-align: center;
+      margin-bottom: 48px;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 600;
+      text-decoration: none;
+      margin-bottom: 32px;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateX(-4px);
+    }
+
+    .subscription-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .subscription-subtitle {
+      font-size: 1.25rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Status Banner */
+    .status-banner {
+      width: 100%;
+      max-width: 800px;
+      padding: 24px 32px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(30px);
+      border: 2px solid rgba(0, 212, 255, 0.4);
+      border-radius: 20px;
+      margin-bottom: 48px;
+      display: none;
+      animation: slideInUp 0.6s ease-out;
+    }
+
+    .status-banner.active {
+      display: block;
+      border-color: rgba(45, 208, 111, 0.6);
+      background: rgba(45, 208, 111, 0.1);
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .status-content h3 {
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+      color: #2dd06f;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-info {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .status-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .status-label {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 500;
+    }
+
+    .status-value {
+      font-size: 1.1rem;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* Plan Card */
+    .plan-card {
+      width: 100%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(30px);
+      border: 2px solid rgba(0, 212, 255, 0.3);
+      border-radius: 32px;
+      padding: 48px 40px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.8s ease-out;
+      transition: all 0.4s ease;
+    }
+
+    .plan-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(0, 212, 255, 0.6);
+      box-shadow: 0 24px 80px rgba(0, 212, 255, 0.3);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .plan-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #00d4ff, #7b2ff7, #f107a3);
+      animation: shimmerLine 3s linear infinite;
+    }
+
+    @keyframes shimmerLine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .plan-badge {
+      display: inline-block;
+      padding: 8px 20px;
+      background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+    }
+
+    .plan-name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .plan-price {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .price-amount {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #00d4ff;
+    }
+
+    .price-currency {
+      font-size: 2rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .price-period {
+      font-size: 1.25rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .benefits-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 40px 0;
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: start;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .benefit-item:hover {
+      background: rgba(0, 212, 255, 0.1);
+      transform: translateX(8px);
+    }
+
+    .benefit-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .benefit-text {
+      flex: 1;
+    }
+
+    .benefit-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .benefit-desc {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .subscribe-btn {
+      width: 100%;
+      padding: 18px 32px;
+      background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+      border: none;
+      border-radius: 16px;
+      color: #fff;
+      font-size: 1.25rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 12px 40px rgba(0, 212, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .subscribe-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 60px rgba(0, 212, 255, 0.6);
+    }
+
+    .subscribe-btn:active {
+      transform: translateY(0);
+    }
+
+    .subscribe-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .manage-btn {
+      width: 100%;
+      padding: 18px 32px;
+      background: rgba(255, 71, 87, 0.2);
+      border: 2px solid rgba(255, 71, 87, 0.4);
+      border-radius: 16px;
+      color: #ff4757;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 12px;
+    }
+
+    .manage-btn:hover {
+      background: rgba(255, 71, 87, 0.3);
+      border-color: rgba(255, 71, 87, 0.6);
+    }
+
+    /* Terms */
+    .terms {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.6;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .subscription-title {
+        font-size: 2rem;
+      }
+
+      .subscription-subtitle {
+        font-size: 1rem;
+      }
+
+      .plan-card {
+        padding: 32px 24px;
+      }
+
+      .plan-name {
+        font-size: 2rem;
+      }
+
+      .price-amount {
+        font-size: 2.5rem;
+      }
+
+      .status-info {
+        flex-direction: column;
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="subscription-bg"></div>
+
+  <!-- Main Container -->
+  <div class="subscription-container">
+    <!-- Header -->
+    <div class="subscription-header">
+      <a href="dashboard.html" class="back-btn">
+        <span>⬅️</span>
+        <span>Back to Dashboard</span>
+      </a>
+      <h1 class="subscription-title">Premium Subscription</h1>
+      <p class="subscription-subtitle">Unlock exclusive benefits and save more</p>
+    </div>
+
+    <!-- Active Subscription Status -->
+    <div class="status-banner" id="status-banner">
+      <div class="status-content">
+        <h3>
+          <span>✨</span>
+          <span>Active Rider Membership</span>
+        </h3>
+        <div class="status-info">
+          <div class="status-item">
+            <span class="status-label">Status</span>
+            <span class="status-value" id="status-text">Active</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Expires On</span>
+            <span class="status-value" id="expiry-date">-</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Days Remaining</span>
+            <span class="status-value" id="days-remaining">-</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plan Card -->
+    <div class="plan-card">
+      <span class="plan-badge">Most Popular</span>
+      <h2 class="plan-name">Rider Plan</h2>
+      <div class="plan-price">
+        <span class="price-currency">₹</span>
+        <span class="price-amount">199</span>
+        <span class="price-period">/month</span>
+      </div>
+
+      <ul class="benefits-list">
+        <li class="benefit-item">
+          <span class="benefit-icon">🏨</span>
+          <div class="benefit-text">
+            <div class="benefit-title">Exclusive Hotel Offers</div>
+            <div class="benefit-desc">Get special deals on hotel bookings</div>
+          </div>
+        </li>
+        <li class="benefit-item">
+          <span class="benefit-icon">🎫</span>
+          <div class="benefit-text">
+            <div class="benefit-title">Free Trip Access</div>
+            <div class="benefit-desc">No payment for Search Trips, Destinations & Join</div>
+          </div>
+        </li>
+        <li class="benefit-item">
+          <span class="benefit-icon">💰</span>
+          <div class="benefit-text">
+            <div class="benefit-title">40% Off Create Trip</div>
+            <div class="benefit-desc">Save big when creating your own trips</div>
+          </div>
+        </li>
+        <li class="benefit-item">
+          <span class="benefit-icon">⭐</span>
+          <div class="benefit-text">
+            <div class="benefit-title">Priority Support</div>
+            <div class="benefit-desc">Get faster assistance from our team</div>
+          </div>
+        </li>
+      </ul>
+
+      <button class="subscribe-btn" id="subscribe-btn">
+        Subscribe Now
+      </button>
+
+      <button class="manage-btn" id="cancel-btn" style="display: none;">
+        Cancel Subscription
+      </button>
+
+      <div class="terms">
+        Auto-renews monthly. Cancel anytime from your account.<br>
+        By subscribing, you agree to our Terms of Service.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUBSCRIPTION_KEY = 'rnr_subscription';
+    const WALLET_KEY = 'rnr_wallet';
+    const TRANSACTIONS_KEY = 'rnr_transactions';
+
+    // Get elements
+    const subscribeBtn = document.getElementById('subscribe-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const statusBanner = document.getElementById('status-banner');
+    const statusText = document.getElementById('status-text');
+    const expiryDate = document.getElementById('expiry-date');
+    const daysRemaining = document.getElementById('days-remaining');
+
+    // Get subscription data
+    function getSubscription() {
+      const data = localStorage.getItem(SUBSCRIPTION_KEY);
+      return data ? JSON.parse(data) : null;
+    }
+
+    // Save subscription data
+    function saveSubscription(data) {
+      localStorage.setItem(SUBSCRIPTION_KEY, JSON.stringify(data));
+    }
+
+    // Check if subscription is active
+    function isSubscriptionActive() {
+      const subscription = getSubscription();
+      if (!subscription || !subscription.active) return false;
+      
+      const now = new Date().getTime();
+      const expiry = new Date(subscription.expiryDate).getTime();
+      
+      if (now > expiry) {
+        // Subscription expired
+        subscription.active = false;
+        saveSubscription(subscription);
+        return false;
+      }
+      
+      return true;
+    }
+
+    // Calculate days remaining
+    function getDaysRemaining() {
+      const subscription = getSubscription();
+      if (!subscription) return 0;
+      
+      const now = new Date().getTime();
+      const expiry = new Date(subscription.expiryDate).getTime();
+      const diff = expiry - now;
+      
+      return Math.ceil(diff / (1000 * 60 * 60 * 24));
+    }
+
+    // Update UI based on subscription status
+    function updateUI() {
+      if (isSubscriptionActive()) {
+        const subscription = getSubscription();
+        const days = getDaysRemaining();
+        
+        // Show status banner
+        statusBanner.classList.add('active');
+        statusText.textContent = 'Active';
+        expiryDate.textContent = new Date(subscription.expiryDate).toLocaleDateString();
+        daysRemaining.textContent = days + ' days';
+        
+        // Update buttons
+        subscribeBtn.textContent = 'Renew Subscription';
+        subscribeBtn.style.background = 'rgba(45, 208, 111, 0.2)';
+        subscribeBtn.style.border = '2px solid rgba(45, 208, 111, 0.4)';
+        subscribeBtn.style.color = '#2dd06f';
+        cancelBtn.style.display = 'block';
+      } else {
+        statusBanner.classList.remove('active');
+        subscribeBtn.textContent = 'Subscribe Now';
+        subscribeBtn.style.background = 'linear-gradient(135deg, #00d4ff, #7b2ff7)';
+        subscribeBtn.style.border = 'none';
+        subscribeBtn.style.color = '#fff';
+        cancelBtn.style.display = 'none';
+      }
+    }
+
+    // Activate subscription
+    function activateSubscription() {
+      const now = new Date();
+      const expiry = new Date(now);
+      expiry.setMonth(expiry.getMonth() + 1); // Add 1 month
+      
+      const subscription = {
+        active: true,
+        plan: 'Rider',
+        price: 199,
+        startDate: now.toISOString(),
+        expiryDate: expiry.toISOString(),
+        benefits: {
+          hotelOffers: true,
+          freeSearchAndJoin: true,
+          createTripDiscount: 40
+        }
+      };
+      
+      saveSubscription(subscription);
+      
+      // Add transaction to wallet (optional - for tracking)
+      const transactions = JSON.parse(localStorage.getItem(TRANSACTIONS_KEY) || '[]');
+      transactions.unshift({
+        id: 'txn_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        type: 'debit',
+        amount: 199,
+        description: 'Rider Plan Subscription',
+        reference: 'Monthly subscription - ' + now.toLocaleDateString(),
+        timestamp: now.toISOString(),
+        balanceAfter: 0
+      });
+      localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(transactions));
+      
+      console.log('✅ Subscription activated successfully');
+      updateUI();
+    }
+
+    // Handle subscription payment
+    subscribeBtn.addEventListener('click', function() {
+      if (!window.EasyPayIO) {
+        alert('Payment system not loaded. Please refresh the page.');
+        return;
+      }
+
+      subscribeBtn.disabled = true;
+      subscribeBtn.textContent = 'Processing...';
+
+      window.EasyPayIO.pay({
+        amount: 199,
+        productName: 'Rider Plan Subscription',
+        productDescription: 'Monthly subscription with exclusive benefits',
+        userEmail: localStorage.getItem('rnr_user_email') || '',
+        onSuccess: function(response) {
+          console.log('Payment successful:', response);
+          
+          // Activate subscription
+          activateSubscription();
+          
+          // Show success message
+          alert('🎉 Subscription activated successfully!\n\nYou now have access to:\n• Exclusive hotel offers\n• Free trip access (search & join)\n• 40% off on creating trips\n• Priority support');
+          
+          subscribeBtn.disabled = false;
+        },
+        onFailure: function(error) {
+          console.error('Payment failed:', error);
+          alert('Payment failed or cancelled. Please try again.');
+          subscribeBtn.disabled = false;
+          subscribeBtn.textContent = 'Subscribe Now';
+        }
+      });
+    });
+
+    // Handle cancellation
+    cancelBtn.addEventListener('click', function() {
+      if (confirm('Are you sure you want to cancel your subscription?\n\nYou will lose access to:\n• Hotel offers\n• Free trip access\n• 40% discount on trip creation\n\nYour subscription will remain active until the expiry date.')) {
+        const subscription = getSubscription();
+        subscription.active = false;
+        subscription.cancelledAt = new Date().toISOString();
+        saveSubscription(subscription);
+        
+        alert('❌ Subscription cancelled.\n\nYou can continue to use benefits until: ' + new Date(subscription.expiryDate).toLocaleDateString());
+        updateUI();
+      }
+    });
+
+    // Initialize
+    updateUI();
+
+    // Check expiry every minute
+    setInterval(() => {
+      if (isSubscriptionActive()) {
+        updateUI();
+      } else {
+        const subscription = getSubscription();
+        if (subscription && subscription.active) {
+          // Just expired
+          alert('⏰ Your Rider subscription has expired.\n\nRenew now to continue enjoying exclusive benefits!');
+          updateUI();
+        }
+      }
+    }, 60000);
+  </script>
+</body>
+</html>

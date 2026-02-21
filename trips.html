@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Trips Hub - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="window.location.href='dashboard.html'">
+        <span class="icon">🏠</span>
+        <span class="label">Back to Dashboard</span>
+      </button>
+      <button class="nav-btn" onclick="window.location.href='wallet.html'">
+        <span class="icon">💰</span>
+        <span class="label">My Wallet</span>
+      </button>
+      <button class="nav-btn" onclick="window.location.href='subscription.html'" style="background:linear-gradient(135deg,rgba(123,47,247,0.15),rgba(241,7,163,0.1));border:1px solid rgba(123,47,247,0.3);">
+        <span class="icon">⭐</span>
+        <span class="label">Go Premium</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;">
+    <header class="dashboard-header" style="margin-bottom:32px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.2rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;">Trips Hub</h1>
+    </header>
+    <section class="cards trips-hub-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:32px;width:100%;max-width:900px;">
+      <button class="card trips-hub-btn" id="search-join-btn" onclick="window.location.href='payment.html?action=access'" style="min-height:180px;">
+        <h2>Search Trips, Destinations &amp; Join</h2>
+        <p class="muted" id="search-join-price">Find trips, destinations, or join a trip. <b>₹99 payment required</b>.</p>
+      </button>
+      <button class="card trips-hub-btn" id="create-trip-btn" onclick="window.location.href='payment.html?action=create'" style="min-height:180px;">
+        <h2>Create Trip</h2>
+        <p class="muted" id="create-trip-price">Start a new trip for others to join. <b>₹99 payment required</b>.</p>
+      </button>
+    </section>
+  </main>
+  <script>
+    // Check subscription and update UI
+    function checkSubscription() {
+      const subscription = JSON.parse(localStorage.getItem('rnr_subscription') || '{}');
+      const searchJoinPrice = document.getElementById('search-join-price');
+      const createTripPrice = document.getElementById('create-trip-price');
+      const searchJoinBtn = document.getElementById('search-join-btn');
+      const createTripBtn = document.getElementById('create-trip-btn');
+      
+      if (subscription.active) {
+        const now = new Date().getTime();
+        const expiry = new Date(subscription.expiryDate).getTime();
+        
+        if (now <= expiry) {
+          // Premium member - show benefits
+          searchJoinPrice.innerHTML = 'Find trips, destinations, or join a trip. <b style="color:#2dd06f;">✨ FREE for Premium Members</b>';
+          createTripPrice.innerHTML = 'Start a new trip for others to join. <b style="color:#00d4ff;">✨ 40% OFF - Only ₹59</b>';
+          
+          // Add premium styling
+          searchJoinBtn.style.border = '2px solid rgba(45,208,111,0.4)';
+          createTripBtn.style.border = '2px solid rgba(0,212,255,0.4)';
+        }
+      }
+    }
+    
+    checkSubscription();
+  </script>
+  <style>
+    @media (max-width: 800px) {
+      .trips-hub-cards { grid-template-columns:1fr!important; }
+    }
+    .trips-hub-btn {
+      background: linear-gradient(135deg, rgba(28,22,18,0.38), rgba(18,14,12,0.52));
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(18,14,10,0.55);
+      border: 1.5px solid rgba(60,40,28,0.12);
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 32px 28px;
+      cursor: pointer;
+      transition: all .22s cubic-bezier(.4,.2,.2,1);
+      margin: 0;
+      text-align: left;
+    }
+    .trips-hub-btn:hover {
+      color: #fff;
+      transform: translateY(-4px) scale(1.04);
+      box-shadow: 0 12px 40px rgba(216,127,59,0.18);
+      background: rgba(255,255,255,0.03);
+    }
+    .trips-hub-btn h2 { margin: 0 0 10px 0; font-size: 1.5rem; }
+    .trips-hub-btn p { margin: 0; font-size: 1rem; color: var(--muted); }
+  </style>
+</body>
+</html>

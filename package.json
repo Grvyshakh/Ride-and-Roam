@@ -1,0 +1,11 @@
+{
+  "name": "ride-and-roam",
+  "version": "1.0.0",
+  "description": "Local server for Ride and Roam web app",
+  "scripts": {
+    "start": "http-server ../ -o"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

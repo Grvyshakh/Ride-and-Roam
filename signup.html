@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sign Up - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="signup">
+  <main class="center-login">
+    <div class="login-card" role="main" aria-labelledby="signup-title">
+      <h1 id="signup-title">Ride &amp; Roam</h1>
+      <p class="subtitle">Create your account and start the journey</p>
+      <h2 class="login-heading">Create Account</h2>
+      <div class="muted small" style="margin-top:6px">Note: A subscription is required to fully activate your account. You'll be prompted to subscribe after first login to access bookings and premium features.</div>
+
+      <form id="signup-form" class="login-form">
+        <label class="vis">Full Name</label>
+        <input id="fullName" type="text" placeholder="Full name" required />
+
+        <label class="vis">Email</label>
+        <input id="email" type="email" placeholder="Email" required />
+
+        <label class="vis">Password</label>
+        <input id="password" type="password" minlength="6" placeholder="Password (min 6 chars)" required />
+
+        <label class="vis">Phone Number</label>
+        <input id="phone" type="tel" placeholder="+919876543210" required />
+
+        <div class="form-actions">
+          <button class="btn login-cta" type="submit">Create Account</button>
+        </div>
+      </form>
+
+      <div id="status" class="muted small status" aria-live="polite"></div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { auth, db } from './firebase-init.js';
+    import { signOut, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+    import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
+
+    const status = document.getElementById('status');
+    const form = document.getElementById('signup-form');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('fullName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const phone = document.getElementById('phone').value.trim();
+      if (!name || !email || password.length < 6 || !phone) {
+        alert('Please complete the form');
+        return;
+      }
+      status.textContent = 'Creating account...';
+      try {
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCred.user;
+        await setDoc(doc(db, 'users', user.uid), {
+          name,
+          email,
+          phone,
+          subscription: false,
+          createdAt: serverTimestamp()
+        });
+        // Save profile to localStorage for dashboard sidebar
+        localStorage.setItem('profile', JSON.stringify({ name, username: '', phone, email }));
+        localStorage.setItem('currentUser', JSON.stringify({ name, username: '', phone, email }));
+        status.textContent = 'Account created. Redirecting to login...';
+        await signOut(auth);
+        setTimeout(() => location.href = 'login.html', 900);
+      } catch (err) {
+        console.error('create account failed', err);
+        status.textContent = 'Failed to create account: ' + (err.message || err);
+      }
+    });
+  </script>
+
+  <!-- Signup requires EasyPayIO payment; ensure popups are allowed -->
+</body>
+</html>

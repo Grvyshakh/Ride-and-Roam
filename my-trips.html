@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Trips - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="window.location.href='dashboard.html'">
+        <span class="icon">🏠</span>
+        <span class="label">Back to Dashboard</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;">
+    <header class="dashboard-header" style="margin-bottom:32px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.2rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;">My Trips</h1>
+    </header>
+    <section id="my-trips-list" class="cards" style="width:100%;max-width:900px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;"></section>
+    <div id="my-trips-empty" style="text-align:center;color:#888;margin-top:32px;font-size:1.15em;">No trips found for your account.</div>
+  </main>
+  <script>
+    // Get current user
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const username = currentUser.username || currentUser.name || '';
+    // Load only from userTrips_<username>
+    const userTripsKey = 'userTrips_' + username;
+    const myTrips = JSON.parse(localStorage.getItem(userTripsKey) || '[]');
+    // Render
+    const list = document.getElementById('my-trips-list');
+    const empty = document.getElementById('my-trips-empty');
+    if (myTrips.length === 0) {
+      empty.style.display = 'block';
+    } else {
+      empty.style.display = 'none';
+      myTrips.forEach(trip => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.cursor = 'pointer';
+        card.innerHTML = `<b>${trip.tripName || trip.place || ''}</b> <br>Date: ${trip.date || ''} <br>Code: ${trip.tripCode || trip.code || ''} <br><span style='color:#00b8d4'>${trip.creatorUsername === username ? 'Created' : 'Joined'}</span>`;
+        card.onclick = function() {
+          // Set this trip as the most recent joined trip for joined-trip.html
+          // (Optional: could update a recent trip key if needed)
+          window.location.href = 'joined-trip.html';
+        };
+        list.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>

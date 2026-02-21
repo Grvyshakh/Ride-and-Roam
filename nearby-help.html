@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nearby Help - Ride & Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="window.location.href='dashboard.html'">
+        <span class="icon">🏠</span>
+        <span class="label">Back to Dashboard</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;">
+    <header class="dashboard-header" style="margin-bottom:32px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.2rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;">Nearby Help</h1>
+    </header>
+    <section style="width:100%;max-width:700px;">
+      <h2 style="font-size:1.3rem;color:#fff;margin-bottom:18px;">Show nearby:</h2>
+      <div class="cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:22px;margin-bottom:18px;">
+        <button class="card btn action" onclick="alert('This will show nearby hospitals (Google Maps Places API will be added later).')">Hospitals</button>
+        <button class="card btn action" onclick="alert('This will show nearby police stations (Google Maps Places API will be added later).')">Police stations</button>
+        <button class="card btn action" onclick="alert('This will show nearby fuel stations (Google Maps Places API will be added later).')">Fuel stations</button>
+        <button class="card btn action" onclick="alert('This will show nearby electric stations (Google Maps Places API will be added later).')">Electric stations</button>
+        <button class="card btn action" onclick="alert('This will show nearby mechanics/puncture shops (Google Maps Places API will be added later).')">Mechanics / puncture shops</button>
+      </div>
+      <div class="muted" style="margin-bottom:18px;">You can implement later using Google Maps Places API.</div>
+    </section>
+    <div style="display:flex;gap:14px;justify-content:center;margin:32px 0 0 0;">
+      <button class="btn action" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+      <button class="btn action" onclick="history.back()">Back</button>
+    </div>
+  </main>
+</body>
+</html>

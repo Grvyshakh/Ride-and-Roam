@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hotel Booking Form - Ride & Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: #0f0930; color: #f8fafd; font-family: 'Poppins', Arial, sans-serif; margin:0; }
+    .booking-form-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: url('https://images.unsplash.com/photo-1506744038136-462fa3a6c7f0?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+      filter: brightness(0.5) blur(2px);
+      width: 100vw;
+      height: 100vh;
+    }
+    .booking-form-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2em;
+    }
+    .booking-form-card {
+      background: rgba(24, 34, 54, 0.68);
+      border-radius: 22px;
+      box-shadow: 0 8px 32px 0 rgba(16, 26, 51, 0.22);
+      padding: 2.5em 2em;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      color: #f8fafd;
+      margin-bottom: 2em;
+    }
+    .booking-form-title {
+      font-size: 1.5em;
+      font-weight: 700;
+      margin-bottom: 1em;
+      color: #fff;
+    }
+    .booking-form-field {
+      margin-bottom: 1em;
+      text-align: left;
+    }
+    .booking-form-field label {
+      display: block;
+      margin-bottom: 0.3em;
+      color: #b0b8c9;
+      font-size: 1em;
+    }
+    .booking-form-field input {
+      width: 100%;
+      padding: 0.7em;
+      border-radius: 10px;
+      border: 1.5px solid #00b8d4;
+      background: rgba(16,26,51,0.22);
+      color: #f8fafd;
+      font-size: 1.08em;
+      margin-bottom: 0.2em;
+    }
+    .btn {
+      background: linear-gradient(90deg, #00b8d4 0%, #162447 100%);
+      color: #fff;
+      font-weight: 700;
+      border-radius: 14px;
+      font-size: 1.08em;
+      box-shadow: 0 2px 8px #00b8d455;
+      border: none;
+      outline: none;
+      padding: 0.8em 2em;
+      margin-top: 1em;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+    }
+    .btn:hover, .btn:focus {
+      background: linear-gradient(90deg, #162447 0%, #10023a 100%);
+      color: #fff;
+      box-shadow: 0 4px 16px #00b8d455;
+    }
+    .booking-success {
+      font-size: 1.2em;
+      color: #00eaff;
+      margin-top: 1.5em;
+      font-weight: 700;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="booking-form-bg"></div>
+  <div class="booking-form-content">
+    <form class="booking-form-card" id="hotel-booking-form">
+      <div class="booking-form-title">Hotel Booking</div>
+      <div class="booking-form-field">
+        <label for="rooms">Number of rooms</label>
+        <input type="number" id="rooms" name="rooms" min="1" required>
+      </div>
+      <div class="booking-form-field">
+        <label for="people">Number of people</label>
+        <input type="number" id="people" name="people" min="1" required>
+      </div>
+      <div class="booking-form-field">
+        <label for="dates">Dates <span style="color:#ff3d3d">*</span></label>
+        <input type="text" id="dates" name="dates" placeholder="YYYY-MM-DD to YYYY-MM-DD" required>
+        <div id="dates-error" style="color:#ff3d3d;font-size:0.98em;display:none;margin-top:2px;">Please enter your booking dates.</div>
+      </div>
+      <button type="submit" class="btn">Confirm Booking</button>
+      <div class="booking-success" id="booking-success">✅ Booked successfully!</div>
+    </form>
+    <button class="btn" onclick="window.location.href='hotel-booking.html'">Back to Bookings</button>
+  </div>
+  <script>
+    document.getElementById('hotel-booking-form').onsubmit = function(e) {
+      e.preventDefault();
+      var dates = document.getElementById('dates').value.trim();
+      var error = document.getElementById('dates-error');
+      if (!dates) {
+        error.style.display = 'block';
+        return;
+      } else {
+        error.style.display = 'none';
+      }
+      document.getElementById('booking-success').style.display = 'block';
+      setTimeout(function() {
+        document.getElementById('booking-success').style.display = 'none';
+        window.location.href = 'hotel-booking.html';
+      }, 2000);
+    };
+  </script>
+</body>
+</html>

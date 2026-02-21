@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Payment - Ride & Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <script src="easypayio-gateway.js"></script>
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="window.history.back()">
+        <span class="icon">⬅️</span>
+        <span class="label">Back</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;">
+    <header class="dashboard-header" style="margin-bottom:32px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.2rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;">Payment Required</h1>
+    </header>
+    <section class="card" style="max-width:420px;width:100%;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:18px;">
+      <h2>Pay ₹99 to continue</h2>
+      <p class="muted" id="pay-desc">To proceed, you must pay ₹99 using EasyPay.io.</p>
+      <button id="pay-btn" class="btn action" style="width:100%;max-width:320px;">Pay ₹99 with EasyPay</button>
+      <div id="pay-status" class="muted small" style="min-height:24px;"></div>
+      <div id="pay-fail-actions" style="display:none;flex-direction:column;gap:10px;width:100%;align-items:center;">
+        <button class="btn action" id="try-again-btn">Try Again</button>
+        <button class="btn action" onclick="window.history.back()">Back</button>
+      </div>
+    </section>
+  </main>
+  <script>
+    const SUBSCRIPTION_KEY = 'rnr_subscription';
+    
+    // Check if subscription is active
+    function isSubscriptionActive() {
+      const subscription = localStorage.getItem(SUBSCRIPTION_KEY);
+      if (!subscription) return false;
+      
+      const data = JSON.parse(subscription);
+      if (!data.active) return false;
+      
+      const now = new Date().getTime();
+      const expiry = new Date(data.expiryDate).getTime();
+      
+      return now <= expiry;
+    }
+    
+    function getQueryParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
+    const action = getQueryParam('action');
+    const payBtn = document.getElementById('pay-btn');
+    const payStatus = document.getElementById('pay-status');
+    const failActions = document.getElementById('pay-fail-actions');
+    const tryAgainBtn = document.getElementById('try-again-btn');
+    const payDesc = document.getElementById('pay-desc');
+    let userEmail = localStorage.getItem('rnr_user_email') || '';
+    let paymentAmount = 99;
+    
+    // Check subscription and apply benefits
+    if (isSubscriptionActive()) {
+      if (action === 'access' || action === 'search' || action === 'join') {
+        // Free access for subscribers
+        payDesc.innerHTML = '✨ <strong>Premium Member Benefit!</strong><br>You have free access to Search/Join Trips.';
+        payBtn.textContent = 'Continue (Free Access)';
+        payBtn.onclick = function() {
+          localStorage.setItem('trip_paid_access', 'true');
+          window.location.href = 'destinations-join.html';
+        };
+      } else if (action === 'create') {
+        // 40% discount for create trip
+        paymentAmount = 59; // ₹99 - 40% = ₹59.40 (rounded to ₹59)
+        payDesc.innerHTML = '✨ <strong>Premium Member Discount!</strong><br>40% OFF applied. Pay only ₹59 instead of ₹99.';
+        payBtn.textContent = 'Pay ₹59 with EasyPay';
+        document.querySelector('h2').textContent = 'Pay ₹59 to continue';
+      }
+    }
+
+    function unlockAndRedirect() {
+      // Generate unique payment session ID
+      const paymentSessionId = 'pay_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      
+      // Add points to wallet with session tracking (based on actual amount paid)
+      const pointsEarned = paymentAmount; // 1 rupee = 1 point
+      addPointsToWallet(pointsEarned, action, paymentSessionId);
+      
+      if (action === 'create') {
+        localStorage.setItem('trip_paid_create', 'true');
+        window.location.href = 'create-trips.html';
+      } else if (action === 'access') {
+        localStorage.setItem('trip_paid_access', 'true');
+        window.location.href = 'destinations-join.html';
+      } else {
+        window.location.href = 'trips.html';
+      }
+    }
+    
+    // Wallet Integration - Add points after payment
+    function addPointsToWallet(points, paymentAction, sessionId) {
+      const WALLET_KEY = 'rnr_wallet';
+      const TRANSACTIONS_KEY = 'rnr_transactions';
+      const PROCESSED_PAYMENTS_KEY = 'rnr_processed_payments';
+      
+      // Check if this payment session was already processed
+      const processedPayments = JSON.parse(localStorage.getItem(PROCESSED_PAYMENTS_KEY) || '[]');
+      if (processedPayments.includes(sessionId)) {
+        console.log('⚠️ Payment already processed, skipping duplicate');
+        return;
+      }
+      
+      // Initialize wallet if doesn't exist
+      let wallet = JSON.parse(localStorage.getItem(WALLET_KEY) || '{"balance":0,"totalEarned":0,"totalSpent":0}');
+      let transactions = JSON.parse(localStorage.getItem(TRANSACTIONS_KEY) || '[]');
+      
+      // Create transaction record
+      const description = paymentAction === 'create' 
+        ? 'Points earned for Create Trip payment' 
+        : 'Points earned for Search/Join Trip payment';
+      
+      // Check for duplicate transactions (within last 10 seconds with same amount and description)
+      const now = new Date().getTime();
+      const isDuplicate = transactions.some(t => {
+        const txTime = new Date(t.timestamp).getTime();
+        const timeDiff = now - txTime;
+        return (
+          t.type === 'credit' &&
+          t.amount === points &&
+          t.description === description &&
+          timeDiff < 10000 // Within 10 seconds
+        );
+      });
+      
+      if (isDuplicate) {
+        console.log('⚠️ Duplicate transaction detected, skipping...');
+        // Mark as processed anyway to prevent retries
+        processedPayments.push(sessionId);
+        localStorage.setItem(PROCESSED_PAYMENTS_KEY, JSON.stringify(processedPayments));
+        return;
+      }
+      
+      // Add points
+      wallet.balance += points;
+      wallet.totalEarned += points;
+      
+      const transaction = {
+        id: 'txn_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        type: 'credit',
+        amount: points,
+        description: description,
+        reference: 'Payment ₹99 - ' + (paymentAction === 'create' ? 'Create Trip' : 'Access Trips') + ' [' + sessionId + ']',
+        timestamp: new Date().toISOString(),
+        balanceAfter: wallet.balance
+      };
+      
+      transactions.unshift(transaction);
+      
+      // Mark payment as processed
+      processedPayments.push(sessionId);
+      
+      // Clean old processed payments (keep only last 100)
+      if (processedPayments.length > 100) {
+        processedPayments.splice(0, processedPayments.length - 100);
+      }
+      
+      // Save to localStorage
+      localStorage.setItem(WALLET_KEY, JSON.stringify(wallet));
+      localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(transactions));
+      localStorage.setItem(PROCESSED_PAYMENTS_KEY, JSON.stringify(processedPayments));
+      
+      console.log('✅ Added ' + points + ' points to wallet (Session: ' + sessionId + ')');
+    }
+
+    function startPayment() {
+      payStatus.textContent = '';
+      failActions.style.display = 'none';
+      if (!window.EasyPayIO) {
+        payStatus.textContent = 'Payment system not loaded. Please try again.';
+        return;
+      }
+      
+      const productDesc = action === 'create' 
+        ? (isSubscriptionActive() ? 'Create Trip (Premium 40% OFF)' : 'Unlock Create Trip')
+        : 'Unlock Search/Join Trip';
+      
+      window.EasyPayIO.pay({
+        amount: paymentAmount,
+        productName: 'Ride & Roam Trip Access',
+        productDescription: productDesc,
+        userEmail: userEmail,
+        onSuccess: function(resp) {
+          payStatus.textContent = '✅ Payment successful! Adding points to wallet...';
+          // Add points and show confirmation
+          const sessionId = 'pay_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+          addPointsToWallet(paymentAmount, action, sessionId);
+          setTimeout(() => {
+            payStatus.textContent = '✅ ' + paymentAmount + ' points added! Redirecting...';
+            setTimeout(unlockAndRedirect, 1000);
+          }, 500);
+        },
+        onFailure: function(err) {
+          payStatus.textContent = 'Payment failed or cancelled.';
+          failActions.style.display = 'flex';
+        }
+      });
+    }
+    
+    // Only add payment listener if not free access
+    if (!(isSubscriptionActive() && (action === 'access' || action === 'search' || action === 'join'))) {
+      payBtn.onclick = startPayment;
+      tryAgainBtn.onclick = startPayment;
+    }
+  </script>
+</body>
+</html>

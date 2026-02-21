@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ride Group - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="group.css" />
+</head>
+<body class="group-bg">
+  <main class="group-container">
+    <header class="group-header">
+      <div class="group-title-area">
+        <h1 id="group-title">Ride Group</h1>
+        <span id="group-code" class="group-code-badge"></span>
+      </div>
+      <div class="group-user">Hi, <span id="current-username"></span></div>
+    </header>
+    <div class="group-main">
+      <aside class="group-members">
+        <h2>Members</h2>
+        <ul id="members-list"></ul>
+      </aside>
+      <section class="group-chat">
+        <div id="chat-messages" class="chat-messages"></div>
+        <form id="chat-form" class="chat-form">
+          <input id="chat-input" type="text" placeholder="Type a message..." autocomplete="off" required />
+          <label class="attach-btn" for="chat-attach" title="Attach image">
+            <input id="chat-attach" type="file" accept="image/*" style="display:none" />
+            <span>📎</span>
+          </label>
+          <button type="submit">Send</button>
+        </form>
+      </section>
+    </div>
+  </main>
+  <script src="group.js"></script>
+</body>
+</html>

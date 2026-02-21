@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Wallet - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body.wallet-page {
+      background: 
+        radial-gradient(ellipse at 20% 30%, rgba(0, 212, 255, 0.15), transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(0, 184, 212, 0.12), transparent 50%),
+        linear-gradient(135deg, #0a0f1a 0%, #0f1729 25%, #162447 50%, #1f3461 75%, #243b5e 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #f8fafd;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      padding: 24px;
+    }
+    
+    .wallet-container {
+      max-width: 900px;
+      margin: 0 auto;
+      animation: fadeIn 0.6s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Header */
+    .wallet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    
+    .wallet-title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .wallet-title h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, #00d4ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+    
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(0, 184, 212, 0.4);
+      color: #00d4ff;
+      transform: translateX(-4px);
+    }
+    
+    /* Balance Card */
+    .balance-card {
+      background: linear-gradient(145deg, rgba(0, 184, 212, 0.2), rgba(0, 150, 180, 0.15));
+      backdrop-filter: blur(30px);
+      border-radius: 24px;
+      padding: 40px 36px;
+      margin-bottom: 32px;
+      border: 1px solid rgba(0, 184, 212, 0.3);
+      box-shadow: 
+        0 16px 60px rgba(0, 184, 212, 0.2),
+        0 0 0 1px rgba(0, 212, 255, 0.15) inset;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .balance-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #00d4ff, #00b8d4);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+    }
+    
+    .balance-label {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+    
+    .balance-amount {
+      font-size: 4rem;
+      font-weight: 800;
+      color: #00d4ff;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-shadow: 0 0 40px rgba(0, 212, 255, 0.4);
+    }
+    
+    .balance-amount .icon {
+      font-size: 3rem;
+    }
+    
+    .balance-info {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    
+    .balance-stat {
+      flex: 1;
+      min-width: 150px;
+    }
+    
+    .balance-stat-label {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 6px;
+    }
+    
+    .balance-stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    
+    /* Section Headers */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .filter-tab {
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .filter-tab.active {
+      background: linear-gradient(135deg, #00d4ff, #00b8d4);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 184, 212, 0.4);
+    }
+    
+    .filter-tab:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    /* Transaction List */
+    .transactions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .transaction-item {
+      background: linear-gradient(145deg, rgba(35, 43, 60, 0.85), rgba(28, 34, 48, 0.85));
+      backdrop-filter: blur(30px);
+      border-radius: 16px;
+      padding: 20px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: all 0.3s ease;
+      animation: slideIn 0.4s ease;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .transaction-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 184, 212, 0.15);
+      border-color: rgba(0, 184, 212, 0.2);
+    }
+    
+    .transaction-icon {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      font-size: 1.75rem;
+      flex-shrink: 0;
+    }
+    
+    .transaction-icon.credit {
+      background: linear-gradient(135deg, rgba(45, 208, 111, 0.2), rgba(45, 208, 111, 0.1));
+      border: 1px solid rgba(45, 208, 111, 0.3);
+    }
+    
+    .transaction-icon.debit {
+      background: linear-gradient(135deg, rgba(255, 71, 87, 0.2), rgba(255, 71, 87, 0.1));
+      border: 1px solid rgba(255, 71, 87, 0.3);
+    }
+    
+    .transaction-details {
+      flex: 1;
+    }
+    
+    .transaction-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    
+    .transaction-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .transaction-date,
+    .transaction-id {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .transaction-amount {
+      font-size: 1.5rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    
+    .transaction-amount.credit {
+      color: #2dd06f;
+    }
+    
+    .transaction-amount.debit {
+      color: #ff4757;
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .empty-state-icon {
+      font-size: 5rem;
+      margin-bottom: 24px;
+      opacity: 0.6;
+    }
+    
+    .empty-state-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 12px;
+    }
+    
+    .empty-state-text {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.6);
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    
+    /* Rewards Info */
+    .rewards-info {
+      background: linear-gradient(145deg, rgba(45, 208, 111, 0.15), rgba(45, 208, 111, 0.08));
+      border: 1px solid rgba(45, 208, 111, 0.3);
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 32px;
+    }
+    
+    .rewards-info h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #2dd06f;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .rewards-info ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .rewards-info li {
+      padding: 10px 0;
+      color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .rewards-info li::before {
+      content: '✓';
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, #2dd06f, #25b85f);
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 0.875rem;
+      flex-shrink: 0;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .wallet-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .wallet-title h1 {
+        font-size: 2rem;
+      }
+      
+      .balance-amount {
+        font-size: 3rem;
+      }
+      
+      .transaction-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      
+      .transaction-amount {
+        width: 100%;
+        text-align: left;
+      }
+      
+      .filter-tabs {
+        width: 100%;
+        overflow-x: auto;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body.wallet-page {
+        padding: 16px;
+      }
+      
+      .balance-card {
+        padding: 28px 20px;
+      }
+      
+      .balance-amount {
+        font-size: 2.5rem;
+      }
+      
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      
+      .filter-tabs {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body class="wallet-page">
+  <div class="wallet-container">
+    <!-- Header -->
+    <div class="wallet-header">
+      <div class="wallet-title">
+        <h1>💰 My Wallet</h1>
+      </div>
+      <a href="dashboard.html" class="back-btn">
+        <span>←</span>
+        <span>Back to Dashboard</span>
+      </a>
+    </div>
+    
+    <!-- Balance Card -->
+    <div class="balance-card">
+      <div class="balance-label">Total Points Balance</div>
+      <div class="balance-amount">
+        <span class="icon">🪙</span>
+        <span id="total-points">0</span>
+      </div>
+      <div class="balance-info">
+        <div class="balance-stat">
+          <div class="balance-stat-label">Total Earned</div>
+          <div class="balance-stat-value" id="total-earned">0</div>
+        </div>
+        <div class="balance-stat">
+          <div class="balance-stat-label">Total Spent</div>
+          <div class="balance-stat-value" id="total-spent">0</div>
+        </div>
+        <div class="balance-stat">
+          <div class="balance-stat-label">Transactions</div>
+          <div class="balance-stat-value" id="total-transactions">0</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Section Header -->
+    <div class="section-header">
+      <h2 class="section-title">
+        <span>📜</span>
+        <span>Transaction History</span>
+      </h2>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <button id="clean-duplicates-btn" style="padding:8px 16px;background:rgba(255,71,87,0.15);border:1px solid rgba(255,71,87,0.3);border-radius:10px;color:#ff4757;font-weight:600;font-size:0.85rem;cursor:pointer;transition:all 0.3s ease;display:none;" onmouseover="this.style.background='rgba(255,71,87,0.25)'" onmouseout="this.style.background='rgba(255,71,87,0.15)'">
+          🧹 Clean Duplicates
+        </button>
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all">All</button>
+          <button class="filter-tab" data-filter="credit">Earned</button>
+          <button class="filter-tab" data-filter="debit">Spent</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Transactions List -->
+    <div class="transactions-list" id="transactions-list">
+      <!-- Transactions will be dynamically inserted here -->
+    </div>
+    
+    <!-- Empty State -->
+    <div class="empty-state" id="empty-state" style="display: none;">
+      <div class="empty-state-icon">💳</div>
+      <div class="empty-state-title">No transactions yet</div>
+      <div class="empty-state-text">
+        Make a payment for creating or searching trips to earn points!
+      </div>
+    </div>
+    
+    <!-- Rewards Info -->
+    <div class="rewards-info">
+      <h3>
+        <span>⭐</span>
+        <span>How to Earn Points</span>
+      </h3>
+      <ul>
+        <li>Pay ₹99 to create a trip and earn 99 points</li>
+        <li>Pay ₹99 to search/join trips and earn 99 points</li>
+        <li>Points are automatically added to your wallet</li>
+        <li>Use points for future bookings and rewards</li>
+      </ul>
+    </div>
+  </div>
+  
+  <script type="module">
+    // Wallet System - Local Storage Based
+    const WALLET_KEY = 'rnr_wallet';
+    const TRANSACTIONS_KEY = 'rnr_transactions';
+    
+    // Initialize wallet data structure
+    function initWallet() {
+      if (!localStorage.getItem(WALLET_KEY)) {
+        const walletData = {
+          balance: 0,
+          totalEarned: 0,
+          totalSpent: 0,
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem(WALLET_KEY, JSON.stringify(walletData));
+      }
+      
+      if (!localStorage.getItem(TRANSACTIONS_KEY)) {
+        localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify([]));
+      }
+    }
+    
+    // Get wallet data
+    function getWallet() {
+      return JSON.parse(localStorage.getItem(WALLET_KEY) || '{}');
+    }
+    
+    // Get transactions
+    function getTransactions() {
+      return JSON.parse(localStorage.getItem(TRANSACTIONS_KEY) || '[]');
+    }
+    
+    // Add points to wallet (credit)
+    function addPoints(amount, description, reference = '') {
+      const wallet = getWallet();
+      const transactions = getTransactions();
+      
+      // Check for duplicate transactions (within last 5 seconds with same amount and description)
+      const now = new Date().getTime();
+      const isDuplicate = transactions.some(t => {
+        const txTime = new Date(t.timestamp).getTime();
+        const timeDiff = now - txTime;
+        return (
+          t.type === 'credit' &&
+          t.amount === amount &&
+          t.description === description &&
+          timeDiff < 5000 // Within 5 seconds
+        );
+      });
+      
+      if (isDuplicate) {
+        console.log('⚠️ Duplicate transaction detected, skipping...');
+        return transactions[0]; // Return the existing transaction
+      }
+      
+      wallet.balance += amount;
+      wallet.totalEarned += amount;
+      
+      const transaction = {
+        id: 'txn_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        type: 'credit',
+        amount: amount,
+        description: description,
+        reference: reference,
+        timestamp: new Date().toISOString(),
+        balanceAfter: wallet.balance
+      };
+      
+      transactions.unshift(transaction);
+      
+      localStorage.setItem(WALLET_KEY, JSON.stringify(wallet));
+      localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(transactions));
+      
+      console.log('✅ Transaction added:', transaction.id);
+      return transaction;
+    }
+    
+    // Deduct points from wallet (debit)
+    function deductPoints(amount, description, reference = '') {
+      const wallet = getWallet();
+      
+      if (wallet.balance < amount) {
+        return { error: 'Insufficient balance' };
+      }
+      
+      const transactions = getTransactions();
+      
+      // Check for duplicate transactions (within last 5 seconds with same amount and description)
+      const now = new Date().getTime();
+      const isDuplicate = transactions.some(t => {
+        const txTime = new Date(t.timestamp).getTime();
+        const timeDiff = now - txTime;
+        return (
+          t.type === 'debit' &&
+          t.amount === amount &&
+          t.description === description &&
+          timeDiff < 5000 // Within 5 seconds
+        );
+      });
+      
+      if (isDuplicate) {
+        console.log('⚠️ Duplicate transaction detected, skipping...');
+        return transactions[0]; // Return the existing transaction
+      }
+      
+      wallet.balance -= amount;
+      wallet.totalSpent += amount;
+      
+      const transaction = {
+        id: 'txn_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        type: 'debit',
+        amount: amount,
+        description: description,
+        reference: reference,
+        timestamp: new Date().toISOString(),
+        balanceAfter: wallet.balance
+      };
+      
+      transactions.unshift(transaction);
+      
+      localStorage.setItem(WALLET_KEY, JSON.stringify(wallet));
+      localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(transactions));
+      
+      console.log('✅ Transaction added:', transaction.id);
+      return transaction;
+    }
+    
+    // Format date
+    function formatDate(isoString) {
+      const date = new Date(isoString);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+      
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+      if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+      if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+      
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined 
+      });
+    }
+    
+    // Render wallet balance
+    function renderBalance() {
+      const wallet = getWallet();
+      const transactions = getTransactions();
+      
+      document.getElementById('total-points').textContent = wallet.balance;
+      document.getElementById('total-earned').textContent = wallet.totalEarned;
+      document.getElementById('total-spent').textContent = wallet.totalSpent;
+      document.getElementById('total-transactions').textContent = transactions.length;
+    }
+    
+    // Render transactions
+    function renderTransactions(filter = 'all') {
+      const transactions = getTransactions();
+      const container = document.getElementById('transactions-list');
+      const emptyState = document.getElementById('empty-state');
+      
+      let filteredTransactions = transactions;
+      if (filter !== 'all') {
+        filteredTransactions = transactions.filter(t => t.type === filter);
+      }
+      
+      if (filteredTransactions.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      
+      container.innerHTML = filteredTransactions.map(transaction => `
+        <div class="transaction-item">
+          <div class="transaction-icon ${transaction.type}">
+            ${transaction.type === 'credit' ? '💰' : '💸'}
+          </div>
+          <div class="transaction-details">
+            <div class="transaction-title">${transaction.description}</div>
+            <div class="transaction-meta">
+              <span class="transaction-date">${formatDate(transaction.timestamp)}</span>
+              <span class="transaction-id">ID: ${transaction.id.substring(0, 16)}...</span>
+            </div>
+          </div>
+          <div class="transaction-amount ${transaction.type}">
+            ${transaction.type === 'credit' ? '+' : '-'}${transaction.amount}
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // Filter tabs
+    function setupFilterTabs() {
+      const tabs = document.querySelectorAll('.filter-tab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          const filter = tab.getAttribute('data-filter');
+          renderTransactions(filter);
+        });
+      });
+    }
+    
+    // Remove duplicate transactions
+    function removeDuplicateTransactions() {
+      const transactions = getTransactions();
+      const wallet = getWallet();
+      
+      // Create a map to track unique transactions
+      const seen = new Map();
+      const unique = [];
+      
+      transactions.forEach(transaction => {
+        // Create a unique key based on type, amount, description, and timestamp (rounded to second)
+        const key = `${transaction.type}_${transaction.amount}_${transaction.description}_${transaction.timestamp.substring(0, 19)}`;
+        
+        if (!seen.has(key)) {
+          seen.set(key, true);
+          unique.push(transaction);
+        }
+      });
+      
+      if (unique.length !== transactions.length) {
+        console.log(`🧹 Removed ${transactions.length - unique.length} duplicate transaction(s)`);
+        
+        // Recalculate wallet balance from scratch
+        wallet.balance = 0;
+        wallet.totalEarned = 0;
+        wallet.totalSpent = 0;
+        
+        // Recalculate from unique transactions (oldest to newest)
+        unique.reverse().forEach(t => {
+          if (t.type === 'credit') {
+            wallet.balance += t.amount;
+            wallet.totalEarned += t.amount;
+          } else {
+            wallet.balance -= t.amount;
+            wallet.totalSpent += t.amount;
+          }
+        });
+        
+        // Reverse back to newest first
+        unique.reverse();
+        
+        localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(unique));
+        localStorage.setItem(WALLET_KEY, JSON.stringify(wallet));
+        
+        return true;
+      }
+      
+      return false;
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      initWallet();
+      
+      // Auto-remove duplicates on page load
+      const hadDuplicates = removeDuplicateTransactions();
+      if (hadDuplicates) {
+        console.log('✅ Duplicates cleaned up');
+      }
+      
+      renderBalance();
+      renderTransactions();
+      setupFilterTabs();
+      setupCleanButton();
+      
+      // Listen for payment events
+      window.addEventListener('storage', (e) => {
+        if (e.key === WALLET_KEY || e.key === TRANSACTIONS_KEY) {
+          renderBalance();
+          renderTransactions();
+          checkForDuplicates();
+        }
+      });
+    });
+    
+    // Setup clean duplicates button
+    function setupCleanButton() {
+      const cleanBtn = document.getElementById('clean-duplicates-btn');
+      
+      cleanBtn.addEventListener('click', () => {
+        if (confirm('This will remove duplicate transactions and recalculate your balance. Continue?')) {
+          const hadDuplicates = removeDuplicateTransactions();
+          if (hadDuplicates) {
+            alert('✅ Duplicate transactions cleaned successfully!');
+            renderBalance();
+            renderTransactions();
+            checkForDuplicates();
+          } else {
+            alert('ℹ️ No duplicates found!');
+          }
+        }
+      });
+      
+      // Initial check
+      checkForDuplicates();
+      
+      // Check periodically
+      setInterval(checkForDuplicates, 3000);
+    }
+    
+    // Check if there are any duplicates
+    function checkForDuplicates() {
+      const cleanBtn = document.getElementById('clean-duplicates-btn');
+      const transactions = getTransactions();
+      
+      const seen = new Map();
+      let hasDuplicates = false;
+      
+      for (const transaction of transactions) {
+        const key = `${transaction.type}_${transaction.amount}_${transaction.description}_${transaction.timestamp.substring(0, 19)}`;
+        if (seen.has(key)) {
+          hasDuplicates = true;
+          break;
+        }
+        seen.set(key, true);
+      }
+      
+      cleanBtn.style.display = hasDuplicates ? 'block' : 'none';
+    }
+    
+    // Expose functions globally for payment integration
+    window.WalletAPI = {
+      addPoints,
+      deductPoints,
+      getWallet,
+      getTransactions,
+      removeDuplicateTransactions
+    };
+  </script>
+</body>
+</html>

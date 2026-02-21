@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Joined Trips - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="window.location.href='dashboard.html'">
+        <span class="icon">🏠</span>
+        <span class="label">Back to Dashboard</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;">
+    <header class="dashboard-header" style="margin-bottom:32px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.2rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;">Joined Trips</h1>
+    </header>
+    <form id="joined-trip-form" class="card" style="max-width:420px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:18px;">
+      <input id="joined-code" type="text" placeholder="Enter Trip Code" required>
+      <button type="submit" class="btn action">Access</button>
+      <div id="joined-error" style="color:#b33;text-align:center;margin-top:8px;display:none;"></div>
+    </form>
+  </main>
+  <script>
+    const form = document.getElementById('joined-trip-form');
+    const codeInput = document.getElementById('joined-code');
+    const errorDiv = document.getElementById('joined-error');
+    form.onsubmit = function(e) {
+      e.preventDefault();
+      const code = codeInput.value.trim().toUpperCase();
+      if (!code) return;
+      const trips = JSON.parse(localStorage.getItem('rnr_trips')||'[]');
+      const found = trips.find(trip => trip.code && trip.code.toUpperCase() === code);
+      if (!found) {
+        errorDiv.textContent = 'Trip code not found.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      // Get all possible joined usernames for this trip
+      let members = JSON.parse(localStorage.getItem('members_' + code) || '[]');
+      // Try to get the current user's name for this trip
+      let username = localStorage.getItem('rnr_group_username_' + code);
+      if (!username || !members.includes(username)) {
+        errorDiv.textContent = 'You have not joined this trip.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      // User has joined, allow access
+      sessionStorage.setItem('joinedTripCode', code);
+      window.location.href = 'join-chat.html';
+    };
+  </script>
+</body>
+</html>

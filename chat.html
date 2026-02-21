@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Trip Chat - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    
+  </aside>
+  <main class="dashboard chat-dark-bg" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#181f2a;">
+    <header class="dashboard-header" style="margin-bottom:24px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.1rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;color:#fff;">Trip Chat</h1>
+    </header>
+    <div class="chat-container-dark typ-chat-theme" style="max-width:540px;width:100%;margin:0 auto 0 auto;display:flex;flex-direction:column;gap:0;background:#181f2a;border-radius:22px;box-shadow:0 4px 32px #0005;padding:0 0 18px 0;">
+      <div id="admin-label" style="font-size:1.08em;color:#00b8d4;font-weight:700;padding:18px 18px 0 18px;"></div>
+      <div id="chat-messages" class="typ-chat-messages" style="min-height:180px;background:transparent;border-radius:18px 18px 0 0;padding:18px 18px 8px 18px;margin-bottom:0;overflow-y:auto;max-height:320px;color:#eaf6ff;font-size:1.08em;display:flex;flex-direction:column;gap:16px;"></div>
+      <div id="chat-status-msg" style="margin:0 18px 8px 18px;color:#ff6b6b;font-weight:600;min-height:22px;"></div>
+      <div class="chat-input-bar" style="display:flex;align-items:center;gap:8px;padding:0 18px 0 18px;margin-top:8px;">
+        <input id="chat-input" type="text" placeholder="Type a message..." style="flex:1;padding:14px 16px;border-radius:12px;border:1px solid #232b3a;background:#232b3a;color:#fff;font-size:1.08em;outline:none;">
+        <button id="send-btn" class="btn action" style="padding:12px 28px;font-size:1.08em;background:#00b86b;color:#fff;border-radius:12px;">Send</button>
+      </div>
+    </div>
+    <button class="btn" style="margin:32px auto 0 auto;max-width:420px;width:100%;background:#232b3a;color:#fff;border-radius:12px;box-shadow:0 2px 8px #0002;font-size:1.08em;" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+  </main>
+<script>
+// Admin-only chat access
+const trip = JSON.parse(localStorage.getItem('rnr_validated_trip')||'null');
+const admin = trip ? trip.creator : null;
+const currentUser = localStorage.getItem('rnr_trip_admin');
+const adminLabel = document.getElementById('admin-label');
+const chatStatus = document.getElementById('chat-status-msg');
+if (!trip || !admin || currentUser !== admin) {
+  adminLabel.textContent = '';
+  chatStatus.textContent = 'Access denied. Only the trip creator (admin) can use the chat.';
+  document.getElementById('chat-input').disabled = true;
+  document.getElementById('send-btn').disabled = true;
+} else {
+  adminLabel.textContent = 'Admin / Trip Creator: ' + admin;
+  chatStatus.textContent = '';
+}
+// Simple local chat (admin only)
+const chatMessages = document.getElementById('chat-messages');
+const sendBtn = document.getElementById('send-btn');
+const chatInput = document.getElementById('chat-input');
+function renderMessages() {
+  const msgs = JSON.parse(localStorage.getItem('rnr_chat_' + trip.code) || '[]');
+  chatMessages.innerHTML = msgs.map((m, i) => {
+    // Support for message object with text, time, sender in future
+    let text = m;
+    let time = '';
+    if (typeof m === 'object' && m.text) {
+      text = m.text;
+      time = m.time || '';
+    }
+    // For now, show current date/time for demo
+    if (!time) {
+      const now = new Date();
+      time = now.toLocaleDateString('en-GB') + ', ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    return `<div class='typ-chat-bubble' style='background:#232b3a;color:#eaf6ff;padding:16px 22px;border-radius:18px;max-width:80%;margin-bottom:0;box-shadow:0 2px 12px #0002;align-self:flex-start;'><div style='font-weight:700;color:#00b8d4;margin-bottom:2px;'>${admin}</div><div style='margin-bottom:6px;'>${text}</div><div style='font-size:0.92em;color:#b0c4d4;text-align:right;'>${time}</div></div>`;
+  }).join('');
+}
+renderMessages();
+sendBtn.onclick = function() {
+  if (!chatInput.value.trim()) return;
+  let msgs = JSON.parse(localStorage.getItem('rnr_chat_' + trip.code) || '[]');
+  // Save as plain text for now
+  msgs.push(chatInput.value.trim());
+  localStorage.setItem('rnr_chat_' + trip.code, JSON.stringify(msgs));
+  chatInput.value = '';
+  renderMessages();
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+};
+</script>
+</body>
+</html>

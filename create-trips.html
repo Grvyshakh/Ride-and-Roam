@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Create Trips - Ride and Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="window.location.href='dashboard.html'">
+        <span class="icon">🏠</span>
+        <span class="label">Back to Dashboard</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;">
+    <header class="dashboard-header" style="margin-bottom:32px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.2rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;">Create Trips</h1>
+    </header>
+   
+    <form id="create-trip-form" class="card" style="max-width:420px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:18px;">
+      <input id="from-place" type="text" placeholder="From / Place" required style="padding:12px;border-radius:10px;border:1px solid #333;background:rgba(255,255,255,0.18);color:#111;font-size:15px;">
+      <input id="to-place" type="text" placeholder="To (optional)" style="padding:12px;border-radius:10px;border:1px solid #333;background:rgba(255,255,255,0.18);color:#111;font-size:15px;">
+      <input id="trip-date" type="date" required style="padding:12px;border-radius:10px;border:1px solid #333;background:rgba(255,255,255,0.18);color:#111;font-size:15px;">
+      <input id="trip-time" type="text" placeholder="Time (e.g. 10:00 AM or Morning/Afternoon/Evening)" style="padding:12px;border-radius:10px;border:1px solid #333;background:rgba(255,255,255,0.18);color:#111;font-size:15px;">
+      <input id="trip-seats" type="number" placeholder="Seats" min="1" required style="padding:12px;border-radius:10px;border:1px solid #333;background:rgba(255,255,255,0.18);color:#111;font-size:15px;">
+      <textarea id="trip-notes" placeholder="Notes (optional)" rows="2" style="padding:12px;border-radius:10px;border:1px solid #333;background:rgba(255,255,255,0.18);color:#111;font-size:15px;"></textarea>
+      <button type="submit" class="btn action" style="margin-top:8px;">Create Trip</button>
+    </form>
+    <div style="margin:32px auto 0 auto;max-width:900px;width:100%;display:flex;gap:16px;">
+      <!-- Removed duplicate navigation button -->
+    </div>
+  </main>
+<script>
+// Only allow if paid
+if (!localStorage.getItem('trip_paid_create')) {
+  window.location.href = 'payment.html?action=create';
+}
+function makeCode(len=6) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for(let i=0;i<len;i++) code += chars[Math.floor(Math.random()*chars.length)];
+  return code;
+}
+const form = document.getElementById('create-trip-form');
+form.onsubmit = function(e) {
+  e.preventDefault();
+  
+  // Generate trip code FIRST
+  const tripCode = makeCode();
+  console.log('Generated trip code:', tripCode);
+  
+  // Capture form values immediately
+  const formData = {
+    from: document.getElementById('from-place').value,
+    to: document.getElementById('to-place').value,
+    date: document.getElementById('trip-date').value,
+    time: document.getElementById('trip-time').value,
+    seats: document.getElementById('trip-seats').value,
+    notes: document.getElementById('trip-notes').value
+  };
+  
+  // Show admin name input and confirmation UI
+  let overlay = document.createElement('div');
+  overlay.style.position = 'fixed';
+  overlay.style.top = 0;
+  overlay.style.left = 0;
+  overlay.style.width = '100vw';
+  overlay.style.height = '100vh';
+  overlay.style.background = 'rgba(0,0,0,0.18)';
+  overlay.style.display = 'flex';
+  overlay.style.justifyContent = 'center';
+  overlay.style.alignItems = 'center';
+  overlay.style.zIndex = 9999;
+  overlay.innerHTML = `
+    <div class="card" style="max-width:420px;width:100%;background:#181f2a;padding:36px 28px 28px 28px;border-radius:18px;box-shadow:0 4px 32px #0005;text-align:center;">
+      <h2 style="margin-bottom:18px;color:#fff;font-size:1.5em;letter-spacing:0.5px;">Trip created successfully!</h2>
+      <div style="margin-bottom:10px;font-size:1.08em;color:#eaf6ff;">Your unique trip code:</div>
+      <div id="trip-code-display" style="font-size:2em;font-weight:700;color:#00b8d4;background:#232b3a;padding:10px 0 10px 0;border-radius:10px;margin:0 auto 18px auto;letter-spacing:2px;user-select:all;">${tripCode}</div>
+      <div style="margin-bottom:10px;color:#eaf6ff;">Enter your name (Trip Creator/Admin):</div>
+      <input id="admin-name-input" type="text" placeholder="Creator/Admin Name" style="padding:12px 14px;border-radius:8px;border:1px solid #333;width:90%;margin-bottom:18px;font-size:1.08em;background:#232b3a;color:#fff;outline:none;" autofocus>
+      <div style="margin-bottom:18px;color:#b0c4d4;font-size:0.97em;">This name will be linked to the trip and used for admin-only access.</div>
+      <button id="save-trip-btn" class="btn action" style="margin-bottom:0;width:100%;background:#00b8d4;color:#fff;border-radius:10px;font-size:1.08em;">Save & Continue</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  // Save trip
+  document.getElementById('save-trip-btn').onclick = function() {
+    const adminName = document.getElementById('admin-name-input').value.trim();
+    if (!adminName) {
+      alert('Creator/Admin name required!');
+      return;
+    }
+    
+    console.log('Saving trip with code:', tripCode);
+    
+    // Save the creator name as the logged-in user
+    localStorage.setItem('rnr_trip_admin', adminName);
+    
+    // Get user profile for user ID/username
+    const profile = JSON.parse(localStorage.getItem('profile') || '{}');
+    const creatorId = profile.username || profile.email || '';
+    const username = creatorId || adminName;
+    
+    // Create trip object with captured form data and trip code
+    const trip = {
+      tripName: formData.from,
+      place: formData.from,
+      from: formData.from,
+      to: formData.to,
+      date: formData.date,
+      time: formData.time,
+      seats: parseInt(formData.seats) || 1,
+      notes: formData.notes,
+      tripCode: tripCode,
+      code: tripCode,
+      creator: adminName,
+      creatorUsername: username,
+      creatorId: creatorId,
+      createdAt: new Date().toISOString()
+    };
+    
+    console.log('Trip object to save:', trip);
+    
+    // Add to allTrips (global)
+    let allTrips = JSON.parse(localStorage.getItem('allTrips')||'[]');
+    if (!allTrips.some(t => (t.code || t.tripCode) === tripCode)) {
+      allTrips.push(trip);
+      localStorage.setItem('allTrips', JSON.stringify(allTrips));
+      console.log('Trip added to allTrips. Total trips:', allTrips.length);
+    } else {
+      console.log('Trip code already exists in allTrips');
+    }
+    
+    // Add to userTrips_<username> (user-specific)
+    const userTripsKey = 'userTrips_' + username;
+    let userTrips = JSON.parse(localStorage.getItem(userTripsKey) || '[]');
+    if (!userTrips.some(t => (t.code || t.tripCode) === tripCode)) {
+      userTrips.push(trip);
+      localStorage.setItem(userTripsKey, JSON.stringify(userTrips));
+      console.log('Trip added to', userTripsKey);
+    }
+    
+    // Save group members and username for group page
+    localStorage.setItem('members_' + tripCode, JSON.stringify([adminName]));
+    localStorage.setItem('rnr_group_username_' + tripCode, adminName);
+    
+    // Save current trip for journey validation
+    localStorage.setItem('rnr_current_trip', JSON.stringify(trip));
+    
+    console.log('✅ Trip saved successfully with code:', tripCode);
+    
+    // Remove overlay and redirect
+    document.body.removeChild(overlay);
+    
+    // Clear the payment flag so they need to pay again for next trip
+    localStorage.removeItem('trip_paid_create');
+    
+    // Redirect to success page
+    window.location.href = 'trip-success.html?code=' + tripCode;
+  };
+};
+
+// No trip display logic here. Only trip creation form is shown.
+</script>
+</body>
+</html>

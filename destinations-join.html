@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Choose Search Option - Ride & Roam</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">Ride &amp; Roam</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn" onclick="window.location.href='trips.html'">
+        <span class="icon">🧳</span>
+        <span class="label">Back to Trips</span>
+      </button>
+      <button class="nav-btn" onclick="window.location.href='dashboard.html'">
+        <span class="icon">🏠</span>
+        <span class="label">Back to Dashboard</span>
+      </button>
+    </nav>
+  </aside>
+  <main class="dashboard" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;">
+    <header class="dashboard-header" style="margin-bottom:32px;width:100%;max-width:900px;">
+      <h1 style="font-size:2.2rem;font-family:'Libre Baskerville',serif;letter-spacing:1.2px;">What do you want to search?</h1>
+    </header>
+    <section class="cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:32px;width:100%;max-width:900px;">
+      <button class="card trips-hub-btn" onclick="window.location.href='search-destinations.html'" style="min-height:180px;">
+        <h2>Search Destinations</h2>
+        <p class="muted">Browse and search top tourist destinations in India.</p>
+      </button>
+      <button class="card trips-hub-btn" onclick="window.location.href='search-trips.html'" style="min-height:180px;">
+        <h2>Search Trips</h2>
+        <p class="muted">Find available trips created by the community.</p>
+      </button>
+      <button class="card trips-hub-btn" onclick="window.location.href='join.html'" style="min-height:180px;">
+        <h2>Join Trip</h2>
+        <p class="muted">Enter a trip code to join a trip.</p>
+      </button>
+    </section>
+  </main>
+  <style>
+    @media (max-width: 800px) {
+      .cards { grid-template-columns:1fr!important; }
+    }
+    .trips-hub-btn {
+      background: linear-gradient(135deg, rgba(28,22,18,0.38), rgba(18,14,12,0.52));
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(18,14,10,0.55);
+      border: 1.5px solid rgba(60,40,28,0.12);
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 32px 28px;
+      cursor: pointer;
+      transition: all .22s cubic-bezier(.4,.2,.2,1);
+      margin: 0;
+      text-align: left;
+    }
+    .trips-hub-btn:hover {
+      color: #fff;
+      transform: translateY(-4px) scale(1.04);
+      box-shadow: 0 12px 40px rgba(216,127,59,0.18);
+      background: rgba(255,255,255,0.03);
+    }
+    .trips-hub-btn h2 { margin: 0 0 10px 0; font-size: 1.5rem; }
+    .trips-hub-btn p { margin: 0; font-size: 1rem; color: var(--muted); }
+  </style>
+</body>
+</html>
